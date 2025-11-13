@@ -416,6 +416,101 @@
             color: #fff;
             transform: translateY(-1px);
         }
+
+        /* ===== 모달 오버레이 ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            display: none;           /* 기본 숨김 */
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        /* ===== 모달 박스 ===== */
+        .modal {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px 26px 20px;
+            width: 360px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+            animation: modalFade 0.2s ease-out;
+            font-size: 14px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-sub {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 14px;
+        }
+
+        .modal-item {
+            background: #f5f7ff;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-item-name {
+            font-weight: 600;
+        }
+
+        .modal-item-price {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* 버튼 영역 */
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            border: none;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .modal-cancel {
+            background: #E8F1FF;
+            color: var(--primary);
+        }
+
+        .modal-cancel:hover {
+            background: rgba(26, 140, 255, 0.12);
+        }
+
+        .modal-confirm {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(26,140,255,0.35);
+        }
+
+        .modal-confirm:hover {
+            transform: translateY(-1px);
+        }
+
+        /* 애니메이션 */
+        @keyframes modalFade {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 
@@ -428,8 +523,9 @@
         <nav class="sidebar-nav">
             <a href="/home" class="nav-item"><span class="icon"></span>홈</a>
             <a href="/mypage" class="nav-item"><span class="icon"></span>마이페이지</a>
-            <a href="#" class="nav-item"><span class="icon"></span>내 피드</a>
+            <a href="#" class="nav-item"><span class="icon"></span>피드</a>
             <a href="/store" class="nav-item active"><span class="icon"></span>상점</a>
+            <a href="#" class="nav-item"><span class="icon"></span>인벤토리</a>
             <a href="#" class="nav-item" id="notif-btn"><span class="icon"></span>
                 알림
                 <span class="notif-badge" id="notif-count">0</span>
@@ -593,6 +689,24 @@
             </div>
         </section>
 
+        <!-- 구매 모달 -->
+        <div class="modal-overlay" id="purchaseModal">
+            <div class="modal">
+                <div class="modal-title">아이템 구매</div>
+                <div class="modal-sub">다음 아이템을 구매하시겠어요?</div>
+
+                <div class="modal-item">
+                    <div class="modal-item-name" id="modalItemName">아이템 이름</div>
+                    <div class="modal-item-price" id="modalItemPrice">0 P</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="modal-btn modal-cancel" id="modalCancelBtn">취소</button>
+                    <button class="modal-btn modal-confirm" id="modalConfirmBtn">구매하기</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 </div>
 
@@ -676,6 +790,52 @@
         bannerIndex = (bannerIndex + 1) % totalBanners;
         updateBanner();
     }, 3000);
+
+    // ===== 구매 모달 =====
+    const modalOverlay = document.getElementById("purchaseModal");
+    const modalItemName = document.getElementById("modalItemName");
+    const modalItemPrice = document.getElementById("modalItemPrice");
+    const modalCancelBtn = document.getElementById("modalCancelBtn");
+    const modalConfirmBtn = document.getElementById("modalConfirmBtn");
+
+    let selectedItem = null;
+
+    // 모든 구매하기 버튼에 이벤트 연결
+    document.querySelectorAll(".item-card").forEach(card => {
+        const buyBtn = card.querySelector(".buy-btn");
+        const nameEl = card.querySelector(".item-name");
+        const priceEl = card.querySelector(".item-price");
+
+        buyBtn.addEventListener("click", () => {
+            selectedItem = {
+                name: nameEl.textContent.trim(),
+                price: priceEl.textContent.trim()
+            };
+
+            modalItemName.textContent = selectedItem.name;
+            modalItemPrice.textContent = selectedItem.price;
+
+            modalOverlay.style.display = "flex";   // 모달 열기
+        });
+    });
+
+    // 취소 버튼 / 바깥 클릭하면 모달 닫기
+    modalCancelBtn.addEventListener("click", () => {
+        modalOverlay.style.display = "none";
+    });
+
+    modalOverlay.addEventListener("click", (e) => {
+        if (e.target === modalOverlay) {
+            modalOverlay.style.display = "none";
+        }
+    });
+
+    // 구매 확정 (테스트용)
+    modalConfirmBtn.addEventListener("click", () => {
+        alert(`${selectedItem.name} 를(을) 구매했습니다!`);   // 나중에 실제 구매 API로 교체
+        modalOverlay.style.display = "none";
+    });
+
 </script>
 </body>
 </html>
