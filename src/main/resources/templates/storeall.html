@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PIN-UP 상점</title>
+
+    <!-- Pretendard -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <style>
+        :root {
+            --bg-light: #F5F5F5;
+            --primary: #1A8CFF;
+            --accent: #3AC45D;
+            --danger: #E53935;
+            --sidebar: #1A8CFF;
+            --card-bg: #FFFFFF;
+            --text-main: #121212;
+            --text-sub: #555555;
+            --radius-xl: 26px;
+            --shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* 전체 레이아웃 */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1A8CFF 0%, #1274D9 100%);
+            color: #fff;
+            padding: 28px 24px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 28px;
+            border-radius: 0 32px 32px 0;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 22px;
+            letter-spacing: 0.06em;
+        }
+
+        .sidebar-nav {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-size: 14px;
+            opacity: 0.9;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item span.icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            display: inline-block;
+        }
+
+        .nav-item.active,
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.16);
+            opacity: 1;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            width: 100%;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* 알림 뱃지 (숫자) */
+        .notif-badge {
+            margin-left: 6px;
+            background: #ff4d4f;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 999px;
+            display: none;
+        }
+
+        /* 알림창 박스 */
+        .notif-box {
+            position: absolute;
+            top: 40px; /* 사이드바 높이에 맞게 조정 */
+            left: 0; /* 사이드바 너비 다음 위치 */
+            width: 260px;
+            background: #fff;
+            color: #333;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            padding: 12px;
+            display: none; /* 기본 숨김 */
+            flex-direction: column;
+            z-index: 999;
+        }
+
+        /* 알림창 헤더 */
+        .notif-header {
+            font-weight: 700;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 6px;
+        }
+
+        /* 알림 목록 */
+        #notif-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        #notif-list li {
+            background: #f5f7fa;
+            margin-bottom: 6px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        /* 알림창이 열릴 때 애니메이션 */
+        @keyframes notifFade {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notif-box.show {
+            display: flex;
+            animation: notifFade 0.2s ease;
+        }
+
+        /* --- Main layout --- */
+        .main {
+            flex: 1;
+            padding: 26px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        /* Top search bar */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 14px;
+            background: #ffffff;
+            border-radius: 999px;
+            min-width: 260px;
+            box-shadow: 0 4px 12px rgba(33,33,80,0.06);
+        }
+        .search-box input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+        .search-icon {
+            background: var(--primary);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        /* ---- Store Page ---- */
+
+        .store-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* 카테고리 */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .category-card {
+            padding: 20px;
+            border-radius: var(--radius-xl);
+            background: #fff;
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-3px);
+        }
+
+        /* 상품 목록 */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .product-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 150px;
+            border-radius: 18px;
+            background: #f0f5ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .product-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .product-price {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .buy-btn {
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: 999px;
+            padding: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .buy-btn:hover {
+            background: #0b6fd8;
+        }
+
+        /* Pagination */
+        .pagination {
+            margin-top: 26px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .page-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #e8e6fd;
+            color: #4c4fa4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .page-btn:hover {
+            background: #dcd9ff;
+        }
+
+        .page-btn.active {
+            background: #5a39ff;
+            color: white;
+        }
+
+        .page-btn.disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">PIN-UP</div>
+        <nav class="sidebar-nav">
+            <a href="/home" class="nav-item"><span class="icon"></span>홈</a>
+            <a href="/mypage" class="nav-item"><span class="icon"></span>마이페이지</a>
+            <a href="#" class="nav-item"><span class="icon"></span>내 피드</a>
+            <a href="/store" class="nav-item active"><span class="icon"></span>상점</a>
+            <a href="#" class="nav-item" id="notif-btn"><span class="icon"></span>
+                알림
+                <span class="notif-badge" id="notif-count">0</span>
+                <!-- 알림 목록 박스 -->
+                <div class="notif-box" id="notif-box">
+                    <div class="notif-header">알림</div>
+                    <ul id="notif-list"></ul>
+                </div>
+            </a>
+            <a href="#" class="nav-item"><span class="icon"></span>설정</a>
+        </nav>
+        <div class="sidebar-bottom">
+            국내 여행 땅따먹기 서비스 PIN-UP
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <div class="topbar">
+            <div class="store-title">상점</div>
+
+            <div class="search-box">
+                <input type="text" placeholder="아이템 검색하기" />
+                <div class="search-icon">🔍</div>
+            </div>
+        </div>
+
+        <!-- 카테고리 -->
+        <section class="category-grid">
+            <div class="category-card">전체 아이템</div>
+            <div class="category-card">지도 스킨</div>
+            <div class="category-card">프로필 꾸미기</div>
+        </section>
+
+        <!-- 상품 목록 -->
+        <section class="product-grid">
+
+            <div class="product-card">
+                <div class="product-img">🍊</div>
+                <div class="product-name">제주 감귤 바구니</div>
+                <div class="product-price">1500 P</div>
+                <button class="buy-btn">구매하기</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-img">🗿</div>
+                <div class="product-name">돌하르방 데코</div>
+                <div class="product-price">2000 P</div>
+                <button class="buy-btn">구매하기</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-img">🏔️</div>
+                <div class="product-name">한라산 미니오브제</div>
+                <div class="product-price">1800 P</div>
+                <button class="buy-btn">구매하기</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-img">🐴</div>
+                <div class="product-name">제주 조랑말 피규어</div>
+                <div class="product-price">2400 P</div>
+                <button class="buy-btn">구매하기</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-img">🌊</div>
+                <div class="product-name">제주 파도 배경</div>
+                <div class="product-price">1200 P</div>
+                <button class="buy-btn">구매하기</button>
+            </div>
+
+            <div class="product-card">
+                <div class="product-img">🔥</div>
+                <div class="product-name">화산지형 맵타일</div>
+                <div class="product-price">900 P</div>
+                <button class="buy-btn">구매하기</button>
+            </div>
+
+        </section>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <div class="page-btn">←</div>
+            <div class="page-btn">1</div>
+            <div class="page-btn active">2</div>
+            <div class="page-btn">3</div>
+            <div class="page-btn">→</div>
+        </div>
+
+    </main>
+</div>
+<script>
+    // SSE 연결 (로그인된 사용자 ID로 변경)
+    const eventSource = new EventSource(`/sse/connect/1`);
+
+    eventSource.addEventListener("connect", (event) => {
+        console.log("✅ SSE 연결 성공:", event.data);
+    });
+
+    eventSource.addEventListener("new notification", (event) => {
+        const data = JSON.parse(event.data);
+        addNotification(data.notificationMessage);
+    });
+
+    eventSource.onerror = (err) => {
+        console.error("🚨 SSE 연결 오류:", err);
+    };
+
+    // 알림 추가 함수
+    function addNotification(message) {
+        const list = document.getElementById("notif-list");
+        const item = document.createElement("li");
+        item.textContent = "📩 " + message;
+        list.prepend(item);
+
+        // 숫자 뱃지 증가
+        const badge = document.getElementById("notif-count");
+        let count = parseInt(badge.textContent) || 0;
+        badge.textContent = count + 1;
+        badge.style.display = "inline-block";
+    }
+
+    // 알림창 토글
+    const notifBtn = document.getElementById("notif-btn");
+    const notifBox = document.getElementById("notif-box");
+    const notifBadge = document.getElementById("notif-count");
+
+    if (notifBtn && notifBox && notifBadge) {
+        notifBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            notifBox.classList.toggle("show");
+
+            if (notifBox.classList.contains("show")) {
+                notifBadge.textContent = "0";
+                notifBadge.style.display = "none";
+            }
+        });
+
+        // 바깥 클릭 시 닫기
+        window.addEventListener("click", function (event) {
+            if (!notifBtn.contains(event.target)) {
+                notifBox.classList.remove("show");
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PIN-UP 상점</title>
+
+    <!-- Pretendard -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <style>
+        :root {
+            --bg-light: #F5F5F5;
+            --primary: #1A8CFF;
+            --accent: #3AC45D;
+            --danger: #E53935;
+            --sidebar: #1A8CFF;
+            --card-bg: #FFFFFF;
+            --text-main: #121212;
+            --text-sub: #555555;
+            --radius-xl: 26px;
+            --shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* 전체 레이아웃 */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1A8CFF 0%, #1274D9 100%);
+            color: #fff;
+            padding: 28px 24px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 28px;
+            border-radius: 0 32px 32px 0;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 22px;
+            letter-spacing: 0.06em;
+        }
+
+        .sidebar-nav {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-size: 14px;
+            opacity: 0.9;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item span.icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            display: inline-block;
+        }
+
+        .nav-item.active,
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.16);
+            opacity: 1;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            width: 100%;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* 알림 뱃지 (숫자) */
+        .notif-badge {
+            margin-left: 6px;
+            background: #ff4d4f;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 999px;
+            display: none;
+        }
+
+        /* 알림창 박스 */
+        .notif-box {
+            position: absolute;
+            top: 40px; /* 사이드바 높이에 맞게 조정 */
+            left: 0; /* 사이드바 너비 다음 위치 */
+            width: 260px;
+            background: #fff;
+            color: #333;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            padding: 12px;
+            display: none; /* 기본 숨김 */
+            flex-direction: column;
+            z-index: 999;
+        }
+
+        /* 알림창 헤더 */
+        .notif-header {
+            font-weight: 700;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 6px;
+        }
+
+        /* 알림 목록 */
+        #notif-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        #notif-list li {
+            background: #f5f7fa;
+            margin-bottom: 6px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        /* 알림창이 열릴 때 애니메이션 */
+        @keyframes notifFade {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notif-box.show {
+            display: flex;
+            animation: notifFade 0.2s ease;
+        }
+
+        .main {
+            flex: 1;
+            padding: 26px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 검색 박스 기존 유지 */
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: #ffffff;
+            border-radius: 999px;
+            box-shadow: 0 4px 12px rgba(33,33,80,0.06);
+            min-width: 260px;
+        }
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            flex: 1;
+        }
+        .search-icon {
+            background: var(--primary);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        /* 배너 슬라이더 */
+        .banner-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto 32px auto;
+            padding: 0;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 배너 메인 */
+        .event-banner {
+            width: 100%;
+            height: 170px;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 32px;
+            color: white;
+            background: linear-gradient(135deg, #1A8CFF, #21C87A);
+            box-sizing: border-box;
+            gap: 40px;
+        }
+
+        .banner-slider {
+            display: flex;
+            width: 100%;
+            height: 170px;
+            transition: transform 0.4s ease-in-out;
+        }
+
+        .banner-item {
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .banner-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 50;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #5A39FF;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .banner-arrow:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .banner-arrow.left {
+            left: 14px;
+        }
+
+        .banner-arrow.right {
+            right: 14px;
+        }
+
+        .banner-text {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            color: #fff;
+            text-align: center;
+            align-items: center;
+        }
+
+        .banner-title {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .banner-desc {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.4;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.12);
+        }
+
+        .banner-btn {
+            margin-top: 12px;
+            width: fit-content;
+            padding: 9px 16px;
+            background: rgba(255,255,255,0.92);
+            color: var(--primary);
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .banner-btn:hover {
+            transform: translateY(-2px);
+            background: white;
+        }
+        /* 배너 이미지 */
+        .banner-img-left,
+        .banner-img-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .banner-img-left img,
+        .banner-img-right img {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        /* 아이템 그리드 */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+        }
+
+        .item-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 18px;
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: 0.2s;
+        }
+        .item-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .item-img {
+            height: 110px;
+            border-radius: 14px;
+            background: #f0f5ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 38px;
+        }
+
+        .item-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .item-price {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .buy-btn {
+            border: none;
+            background: var(--primary);
+            color: white;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .section-more-btn {
+            border: none;
+            background: rgba(26, 140, 255, 0.12);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .section-more-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">PIN-UP</div>
+        <nav class="sidebar-nav">
+            <a href="/home" class="nav-item"><span class="icon"></span>홈</a>
+            <a href="/mypage" class="nav-item"><span class="icon"></span>마이페이지</a>
+            <a href="#" class="nav-item"><span class="icon"></span>내 피드</a>
+            <a href="/store" class="nav-item active"><span class="icon"></span>상점</a>
+            <a href="#" class="nav-item" id="notif-btn"><span class="icon"></span>
+                알림
+                <span class="notif-badge" id="notif-count">0</span>
+                <!-- 알림 목록 박스 -->
+                <div class="notif-box" id="notif-box">
+                    <div class="notif-header">알림</div>
+                    <ul id="notif-list"></ul>
+                </div>
+            </a>
+            <a href="#" class="nav-item"><span class="icon"></span>설정</a>
+        </nav>
+        <div class="sidebar-bottom">
+            국내 여행 땅따먹기 서비스 PIN-UP
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div style="font-size: 24px; font-weight: 700;">상점</div>
+
+            <div class="search-box">
+                <input type="text" placeholder="아이템 검색하기">
+                <div class="search-icon">🔍</div>
+            </div>
+        </div>
+
+        <!-- 이벤트 배너 슬라이더 -->
+        <section class="banner-wrapper">
+
+            <!-- 왼쪽 화살표 -->
+            <div class="banner-arrow left">❮</div>
+
+            <!-- 슬라이더 -->
+            <div class="banner-slider">
+
+                <!-- 배너 1 -->
+                <div class="event-banner banner-item">
+
+                    <div class="banner-img-left">
+                        <img src="/images/bannerimg1.png" alt="이벤트 이미지 1">
+                    </div>
+
+                    <div class="banner-text">
+                        <div class="banner-title">🏝️ 제주도 스페셜 이벤트</div>
+                        <div class="banner-desc">제주 여행 아이템 최대 30% 할인!</div>
+                        <div class="banner-btn">지금 확인하기</div>
+                    </div>
+
+                    <div class="banner-img-right">
+                        <img src="/images/bannerimg2.png" alt="이벤트 이미지 2">
+                    </div>
+
+                </div>
+
+                <!-- 배너 2 -->
+                <div class="event-banner banner-item">
+                    <div class="banner-text">
+                        <div class="banner-title">🔥 신규 지역 업데이트</div>
+                        <div class="banner-desc">
+                            강원 · 전라 신규 지역이 추가되었습니다!
+                        </div>
+                        <div class="banner-btn">자세히 보기</div>
+                    </div>
+                </div>
+
+                <!-- 배너 3 -->
+                <div class="event-banner banner-item">
+                    <div class="banner-text">
+                        <div class="banner-title">🎁 주간 미션 보상 UP!</div>
+                        <div class="banner-desc">
+                            이번 주 미션 보상 포인트 2배 지급!
+                        </div>
+                        <div class="banner-btn">미션 도전</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 오른쪽 화살표 -->
+            <div class="banner-arrow right">❯</div>
+
+        </section>
+
+        <!-- 인기 아이템 -->
+        <section>
+            <div class="section-title">🔥 인기 아이템</div>
+
+            <div class="item-grid">
+
+                <div class="item-card">
+                    <div class="item-img">🍊</div>
+                    <div class="item-name">제주 감귤 바구니</div>
+                    <div class="item-price">1500 P</div>
+                    <button class="buy-btn">구매하기</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-img">🗿</div>
+                    <div class="item-name">돌하르방 데코</div>
+                    <div class="item-price">2000 P</div>
+                    <button class="buy-btn">구매하기</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-img">🏔️</div>
+                    <div class="item-name">한라산 미니오브제</div>
+                    <div class="item-price">1800 P</div>
+                    <button class="buy-btn">구매하기</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-img">🐴</div>
+                    <div class="item-name">제주 조랑말 피규어</div>
+                    <div class="item-price">2400 P</div>
+                    <button class="buy-btn">구매하기</button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 전체 아이템 -->
+        <section>
+            <div class="section-header">
+                <div class="section-title">전체 아이템</div>
+                <button class="section-more-btn" onclick="location.href='/store/all'">더보기</button>
+            </div>
+
+            <div class="item-grid">
+
+                <div class="item-card">
+                    <div class="item-img">🌊</div>
+                    <div class="item-name">제주 바다 배경</div>
+                    <div class="item-price">900 P</div>
+                    <button class="buy-btn">구매하기</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-img">🔥</div>
+                    <div class="item-name">화산 지형 타일</div>
+                    <div class="item-price">720 P</div>
+                    <button class="buy-btn">구매하기</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-img">🌾</div>
+                    <div class="item-name">제주 돌담 데코</div>
+                    <div class="item-price">1100 P</div>
+                    <button class="buy-btn">구매하기</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-img">💠</div>
+                    <div class="item-name">에메랄드 포인트</div>
+                    <div class="item-price">500 P</div>
+                    <button class="buy-btn">구매하기</button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    // SSE 연결 (로그인된 사용자 ID로 변경)
+    const eventSource = new EventSource(`/sse/connect/1`);
+
+    eventSource.addEventListener("connect", (event) => {
+        console.log("✅ SSE 연결 성공:", event.data);
+    });
+
+    eventSource.addEventListener("new notification", (event) => {
+        const data = JSON.parse(event.data);
+        addNotification(data.notificationMessage);
+    });
+
+    eventSource.onerror = (err) => {
+        console.error("🚨 SSE 연결 오류:", err);
+    };
+
+    // 알림 추가 함수
+    function addNotification(message) {
+        const list = document.getElementById("notif-list");
+        const item = document.createElement("li");
+        item.textContent = "📩 " + message;
+        list.prepend(item);
+
+        // 숫자 뱃지 증가
+        const badge = document.getElementById("notif-count");
+        let count = parseInt(badge.textContent) || 0;
+        badge.textContent = count + 1;
+        badge.style.display = "inline-block";
+    }
+
+    // 알림창 토글
+    const notifBtn = document.getElementById("notif-btn");
+    const notifBox = document.getElementById("notif-box");
+    const notifBadge = document.getElementById("notif-count");
+
+    if (notifBtn && notifBox && notifBadge) {
+        notifBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            notifBox.classList.toggle("show");
+
+            if (notifBox.classList.contains("show")) {
+                notifBadge.textContent = "0";
+                notifBadge.style.display = "none";
+            }
+        });
+
+        // 바깥 클릭 시 닫기
+        window.addEventListener("click", function (event) {
+            if (!notifBtn.contains(event.target)) {
+                notifBox.classList.remove("show");
+            }
+        });
+    }
+
+    // 이벤트 배너
+    let bannerIndex = 0;
+    const slider = document.querySelector('.banner-slider');
+    const banners = document.querySelectorAll('.banner-item');
+    const totalBanners = banners.length;
+
+    function updateBanner() {
+        slider.style.transform = `translateX(-${bannerIndex * 100}%)`;
+    }
+
+    document.querySelector('.banner-arrow.left').addEventListener('click', () => {
+        bannerIndex = (bannerIndex === 0) ? totalBanners - 1 : bannerIndex - 1;
+        updateBanner();
+    });
+
+    document.querySelector('.banner-arrow.right').addEventListener('click', () => {
+        bannerIndex = (bannerIndex + 1) % totalBanners;
+        updateBanner();
+    });
+
+    // 자동 슬라이드 (3초 주기)
+    setInterval(() => {
+        bannerIndex = (bannerIndex + 1) % totalBanners;
+        updateBanner();
+    }, 3000);
+</script>
+</body>
+</html>

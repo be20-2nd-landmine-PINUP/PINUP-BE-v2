@@ -1,0 +1,138 @@
+package pinup.backend.conquer.command.application.service;
+
+import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.misc.LogManager;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pinup.backend.conquer.command.application.dto.ConquerEndRequest;
+import pinup.backend.conquer.command.application.dto.ConquerEndResponse;
+import pinup.backend.conquer.command.application.dto.ConquerStartRequest;
+import pinup.backend.conquer.command.application.dto.ConquerStartResponse;
+import pinup.backend.conquer.command.domain.entity.ConquerSession;
+import pinup.backend.conquer.command.domain.entity.Region;
+import pinup.backend.conquer.command.domain.entity.Territory;
+import pinup.backend.conquer.command.domain.entity.TerritoryVisitLog;
+import pinup.backend.conquer.command.domain.repository.ConquerSessionRepository;
+import pinup.backend.conquer.command.domain.repository.TerritoryRepository;
+import pinup.backend.conquer.command.domain.repository.TerritoryVisitLogRepository;
+import pinup.backend.conquer.query.mapper.RegionMapper;
+import pinup.backend.member.command.domain.Users;
+import pinup.backend.member.command.repository.UserRepository;
+import pinup.backend.point.command.service.PointService;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.util.Date;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class ConquerSessionService {
+
+    private final RegionMapper regionMapper;
+    private final ConquerSessionRepository conquerSessionRepository;
+    private final TerritoryRepository territoryRepository;
+    private final TerritoryVisitLogRepository territoryVisitLogRepository;
+    private final UserRepository userRepository;
+    private final PointService pointService;
+
+    private static final Duration CONQUER_DURATION = Duration.ofHours(2);
+
+    public ConquerStartResponse startConquering(Long userId, ConquerStartRequest request) {
+        Region region = regionMapper.findRegion(request.getLongitude(), request.getLatitude());
+        if (region == null) {
+            throw new RuntimeException("No region found for the given coordinates.");
+        }
+
+        ConquerSession session = new ConquerSession();
+        session.setUserId(userId);
+        session.setRegionId(region.getRegionId());
+        session.setStartedAt(Instant.now());
+        session.setStatus(ConquerSession.Status.RUNNING);
+
+        ConquerSession savedSession = conquerSessionRepository.save(session);
+
+        return new ConquerStartResponse(savedSession.getId());
+    }
+
+    public ConquerEndResponse endConquering(Long userId, ConquerEndRequest request) {
+        ConquerSession session = conquerSessionRepository.findByIdAndUserId(request.getSessionId(), userId)
+                .orElseThrow(() -> new RuntimeException("Conquer session not found or you don't have permission."));
+
+        if (session.getStatus() != ConquerSession.Status.RUNNING) {
+            return ConquerEndResponse.of("FAILED", "This session is not active.");
+        }
+
+        Instant now = Instant.now();
+        Duration elapsed = Duration.between(session.getStartedAt(), now);
+
+        if (elapsed.compareTo(CONQUER_DURATION) < 0) {
+            return ConquerEndResponse.of("FAILED", "The conquest requires at least 2 hours.");
+        }
+
+        Region currentRegion = regionMapper.findRegion(request.getLongitude(), request.getLatitude());
+        if (currentRegion == null || !currentRegion.getRegionId().equals(session.getRegionId())) {
+            session.setStatus(ConquerSession.Status.CANCELED);
+            conquerSessionRepository.save(session);
+            return ConquerEndResponse.of("FAILED", "You are not in the same region where you started.");
+        }
+
+        // Success
+        session.setStatus(ConquerSession.Status.COMPLETED);
+        session.setEndedAt(now);
+        conquerSessionRepository.save(session);
+
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+
+        // Create a new Territory record to mark the conquest
+        Territory territory = new Territory(
+                0L, // territoryId will be auto-generated
+                user,
+                currentRegion, // Link to the conquered region
+                Date.from(session.getStartedAt()),
+                Date.from(session.getEndedAt()),
+                1, // Initial visit count
+                null // photoUrl, not set for now
+        );
+        territoryRepository.save(territory);
+        // ✅ 방문 로그 저장
+        TerritoryVisitLog visitLog = new TerritoryVisitLog(
+                0L,
+                territory,
+                (int) elapsed.toMinutes(), // 임시 duration
+                true,                       // 유효 방문
+                Date.from(now)              // 방문 시각
+        );
+
+        territoryVisitLogRepository.save(visitLog);
+
+        //기본 5점 부여
+        pointService.grantCapturePoint(userId, currentRegion.getRegionId());
+
+        // ✅ 월간 방문자 수 집계 후 100명 이하이면 보너스 +10
+        YearMonth ym = YearMonth.from(
+                Instant.ofEpochMilli(visitLog.getVisitedAt().getTime())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+        );
+        Date monthStart = Date.from(ym.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date monthEnd = Date.from(ym.atEndOfMonth().atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant());
+
+        long monthlyVisitors = territoryVisitLogRepository
+                .countDistinctVisitors(
+                        currentRegion.getRegionId(),
+                        monthStart,
+                        monthEnd
+                );
+
+        if (monthlyVisitors <= 100) {
+            pointService.grantCaptureMonthlyBonus(userId, currentRegion.getRegionId(), ym);
+        }
+
+        String message = String.format("Successfully conquered %s!", currentRegion.getRegionName());
+        return ConquerEndResponse.of("SUCCESS", message, currentRegion);
+    }
+}
