@@ -2,12 +2,12 @@ package pinup.backend.store.command.dto;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -27,4 +27,6 @@ public class StoreSummaryResponseDto {
     private String isLimited;
     @Schema(description = "판매 중 여부", example = "true")
     private Boolean isActive;
+    @Schema(description = "아이템 등록 일시")
+    private LocalDateTime created;
 }

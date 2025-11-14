@@ -5,26 +5,29 @@
 
 <mapper namespace="pinup.backend.store.query.mapper.StoreMapper">
 
-    <!--  전체 아이템 조회 -->
-    <select id="findAllActiveItems" resultType="pinup.backend.store.query.dto.StoreResponseDto">
+    <sql id="storeSummaryColumns">
         SELECT
-            s.item_id      AS itemId,
-            s.name         AS name,
-            s.description  AS description,
-            s.price        AS price,
-            s.category     AS category,
-            s.limit_type   AS limitType,
-            s.image_url    AS imageUrl,
-            s.is_active    AS isActive,
-            r.region_name  AS regionName
+            s.item_id     AS itemId,
+            s.name        AS name,
+            s.price       AS price,
+            s.category    AS category,
+            s.limit_type  AS isLimited,
+            s.image_url   AS imageUrl,
+            s.is_active   AS isActive,
+            s.created_at  AS createdAt
         FROM store s
-                 LEFT JOIN region r ON s.region_id = r.region_id
+
+    </sql>
+
+    <!--  전체 아이템 조회 -->
+    <select id="findAllActiveItems" resultType="pinup.backend.store.command.dto.StoreSummaryResponseDto">
+        <include refid="storeSummaryColumns" />
         WHERE s.is_active = TRUE
-        ORDER BY s.item_id DESC
+        ORDER BY s.created_at DESC, s.item_id DESC
     </select>
 
     <!--  특정 아이템 조회 -->
-    <select id="findItemById" parameterType="int" resultType="pinup.backend.store.query.dto.StoreResponseDto">
+    <select id="findItemById" parameterType="int" resultType="pinup.backend.store.command.dto.StoreDetailResponseDto">
         SELECT
             s.item_id      AS itemId,
             s.name         AS name,
@@ -34,10 +37,47 @@
             s.limit_type   AS limitType,
             s.image_url    AS imageUrl,
             s.is_active    AS isActive,
+
             r.region_name  AS regionName
         FROM store s
                  LEFT JOIN region r ON s.region_id = r.region_id
         WHERE s.item_id = #{itemId}
+    </select>
+
+    <!-- 기간 한정 아이템 조회 -->
+    <select id="findLimitedItems" resultType="pinup.backend.store.command.dto.StoreSummaryResponseDto">
+        <include refid="storeSummaryColumns" />
+        WHERE s.is_active = TRUE
+        AND s.limit_type IN ('LIMITED', 'EVENT')
+        ORDER BY s.created_at DESC, s.item_id DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 최신 아이템 조회 -->
+    <select id="findLatestItems" resultType="pinup.backend.store.command.dto.StoreSummaryResponseDto">
+        <include refid="storeSummaryColumns" />
+        WHERE s.is_active = TRUE
+        ORDER BY s.created_at DESC, s.item_id DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 페이지 아이템 조회 -->
+    <select id="findPagedItems" resultType="pinup.backend.store.command.dto.StoreSummaryResponseDto">
+        <include refid="storeSummaryColumns" />
+        WHERE s.is_active = TRUE
+        ORDER BY s.created_at DESC, s.item_id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 전체 활성 아이템 수 -->
+    <select id="countActiveItems" resultType="long">
+        SELECT COUNT(*)
+        FROM store s
+        WHERE s.is_active = TRUE
     </select>
 
 </mapper>
