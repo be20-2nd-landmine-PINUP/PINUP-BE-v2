@@ -17,6 +17,8 @@ public class StoreAdminViewController {
     @GetMapping("/admin/store")
     public String storeList(Model model) {
         model.addAttribute("itemList", storeQueryService.getActiveItems());
-        return "admin/store";
+        return "store/store-admin";
     }
+
+
 }
