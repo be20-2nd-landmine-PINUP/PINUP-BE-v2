@@ -13,7 +13,7 @@ public class AdminQueryController {
     private final AdminQueryService adminQueryService;
 
     // 관리자 홈 대시보드
-    @GetMapping("/admin/home")
+    @GetMapping("/admin/dashboard")
     public String showAdminHome(Model model) {
         // 전체 회원 수 조회
         model.addAttribute("userCount", adminQueryService.getUserCount());
@@ -21,6 +21,6 @@ public class AdminQueryController {
         // 오늘 가입한 회원 수
         model.addAttribute("newUsersToday", adminQueryService.getNewUsersToday());
 
-        return "admin/home";
+        return "admin/dashboard";
     }
 }

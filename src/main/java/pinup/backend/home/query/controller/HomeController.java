@@ -38,15 +38,4 @@ public class HomeController {
         return "index";
     }
 
-    // store test
-    @GetMapping("/store")
-    public String storePage() {
-        return "store";
-    }
-
-    @GetMapping("/store/all")
-    public String storeAllPage() {
-        return "storeall";
-    }
-
 }

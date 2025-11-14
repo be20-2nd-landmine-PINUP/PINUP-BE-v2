@@ -13,7 +13,7 @@ import pinup.backend.notice.query.service.NoticeQueryService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/notices")
+@RequestMapping("/api/notices")
 @RequiredArgsConstructor
 public class NoticeQueryController {
 

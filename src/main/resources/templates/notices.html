@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>공지사항 목록 | PIN-UP ADMIN</title>
+    <title>공지사항 목록 | PIN-UP</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+    <link rel="stylesheet" href="/css/sidebar.css" th:unless="${isAdminPage}">
+    <link rel="stylesheet" href="/css/adminsidebar.css" th:if="${isAdminPage}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <style>
         :root {
@@ -29,66 +32,6 @@
         .layout {
             display: flex;
             min-height: 100vh;
-        }
-
-        /* 사이드바 */
-        .sidebar {
-            width: 250px;
-            background: linear-gradient(180deg, #3AC45D 0%, #2FA84E 100%);
-            color: #fff;
-            padding: 28px 24px 32px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 28px;
-            border-radius: 0 32px 32px 0;
-        }
-
-        .logo {
-            font-weight: 800;
-            font-size: 22px;
-            letter-spacing: 0.06em;
-        }
-
-        .sidebar-nav {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .nav-item {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            border-radius: 999px;
-            font-size: 14px;
-            opacity: 0.9;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .nav-item span.icon {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            display: inline-block;
-        }
-
-        .nav-item.active,
-        .nav-item:hover {
-            background: rgba(255, 255, 255, 0.18);
-            opacity: 1;
-        }
-
-        .sidebar-bottom {
-            margin-top: auto;
-            width: 100%;
-            font-size: 12px;
-            opacity: 0.7;
         }
 
         /* 메인 */
@@ -194,13 +137,6 @@
         /* 반응형 */
         @media (max-width: 1080px) {
             .layout { flex-direction: column; }
-            .sidebar {
-                flex-direction: row;
-                width: 100%;
-                border-radius: 0 0 32px 32px;
-                justify-content: space-between;
-            }
-            .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -208,19 +144,14 @@
 <div class="layout">
 
     <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo">PIN-UP ADMIN</div>
-        <nav class="sidebar-nav">
-            <a href="/admin/home" class="nav-item"><span class="icon"></span>홈</a>
-            <a href="/admin/notices" class="nav-item active"><span class="icon"></span>공지사항</a>
-            <a href="/admin/users" class="nav-item"><span class="icon"></span>회원 관리</a>
-            <a href="#" class="nav-item"><span class="icon"></span>신고 내역</a>
-            <a href="#" class="nav-item"><span class="icon"></span>설정</a>
-        </nav>
-        <div class="sidebar-bottom">
-            PIN-UP 관리자 페이지
-        </div>
-    </aside>
+    <!-- 관리자 사이드바 -->
+    <div th:replace="${isAdminPage} ?
+    ~{common/adminsidebar :: adminsidebar} :
+    ~{common/sidebar :: sidebar}">
+
+    </div>
+
+
 
     <!-- Main -->
     <main class="main">
@@ -230,12 +161,12 @@
         </div>
 
         <section class="table-card">
-            <table>
-                <div class="btn-group">
-                    <a href="/admin/notice/create" class="btn">새 공지 등록</a>
-                    <a href="/admin/home" class="btn">대시보드로 돌아가기</a>
-                </div>
+            <div class="btn-group" th:if="${isAdminPage}">
+                <a href="/admin/notice/create" class="btn">새 공지 등록</a>
+                <a href="/admin/dashboard" class="btn">대시보드로 돌아가기</a>
+            </div>
 
+            <table>
                 <thead>
                 <tr>
                     <th>번호</th>
@@ -262,5 +193,6 @@
         </section>
     </main>
 </div>
+<script defer src="/js/sidebar.js"></script>
 </body>
 </html>
