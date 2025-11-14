@@ -24,9 +24,9 @@ public class StoreSummaryResponseDto {
     @Schema(description = "아이템 이미지 URL")
     private String imageUrl;
     @Schema(description = "판매 정책", example = "LIMITED")
-    private String isLimited;
+    private String limited;
     @Schema(description = "판매 중 여부", example = "true")
     private Boolean isActive;
     @Schema(description = "아이템 등록 일시")
-    private LocalDateTime created;
+    private LocalDateTime createdAt;
 }

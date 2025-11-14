@@ -11,6 +11,8 @@ import pinup.backend.store.command.dto.StoreRequestDto;
 import pinup.backend.store.command.repository.RegionRepository;
 import pinup.backend.store.command.repository.StoreRepository;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,6 +29,8 @@ public class StoreAdminService {
 
         Region region = resolveRegion(dto.getRegionId());
 
+        LocalDateTime createdAt = dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now();
+
         Store store = Store.builder()
                 .admin(admin)
                 .region(region)
@@ -36,6 +40,7 @@ public class StoreAdminService {
                 .category(dto.getCategory())
                 .limitType(dto.getLimitType())
                 .imageUrl(dto.getImageUrl())
+                .createdAt(createdAt)
                 .isActive(true)
                 .build();
 

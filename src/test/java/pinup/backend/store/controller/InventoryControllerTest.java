@@ -55,6 +55,7 @@ InventoryControllerTest {
                 .category(StoreItemCategory.BUILDING)
                 .limitType(StoreLimitType.NORMAL)
                 .imageUrl("test.png")
+                .createdAt(LocalDateTime.now())
                 .isActive(true)
                 .build();
 
