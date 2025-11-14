@@ -1,0 +1,27 @@
+<!-- templates/common/sidebar.html -->
+<aside class="sidebar" th:fragment="sidebar">
+    <div class="logo">PIN-UP</div>
+    <nav class="sidebar-nav">
+        <a href="/home" class="nav-item"><span class="icon"></span>홈</a>
+        <a href="/mypage" class="nav-item"><span class="icon"></span>마이페이지</a>
+        <a href="/decorate" class="nav-item"><span class="icon"></span>지도 꾸미기</a>
+        <a href="/feed" class="nav-item"><span class="icon"></span>피드</a>
+        <a href="/store" class="nav-item"><span class="icon"></span>상점</a>
+        <a href="/inventory" class="nav-item"><span class="icon"></span>인벤토리</a>
+
+        <a class="nav-item" id="notif-btn">
+            <span class="icon"></span>
+            알림
+            <span class="notif-badge" id="notif-count">0</span>
+
+            <div class="notif-box" id="notif-box">
+                <div class="notif-header">알림</div>
+                <ul id="notif-list"></ul>
+            </div>
+        </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        국내 여행 땅따먹기 서비스 PIN-UP
+    </div>
+</aside>

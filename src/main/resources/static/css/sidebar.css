@@ -1,0 +1,138 @@
+/* 사이드바 */
+.sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, #1A8CFF 0%, #1274D9 100%);
+    color: #fff;
+    padding: 28px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    border-radius: 0 32px 32px 0;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+}
+
+.sidebar-nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    opacity: 0.9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-item span.icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    display: inline-block;
+}
+
+.nav-item.active,
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.16);
+    opacity: 1;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    width: 100%;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* 알림 뱃지 (숫자) */
+.notif-badge {
+    margin-left: 6px;
+    background: #ff4d4f;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 999px;
+    display: none;
+}
+
+/* 알림창 박스 */
+.notif-box {
+    position: absolute;
+    top: 40px; /* 사이드바 높이에 맞게 조정 */
+    left: 0; /* 사이드바 너비 다음 위치 */
+    width: 260px;
+    background: #fff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    padding: 12px;
+    display: none; /* 기본 숨김 */
+    flex-direction: column;
+    z-index: 999;
+}
+
+/* 알림창 헤더 */
+.notif-header {
+    font-weight: 700;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 6px;
+}
+
+/* 알림 목록 */
+#notif-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+#notif-list li {
+    background: #f5f7fa;
+    margin-bottom: 6px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+/* 알림창이 열릴 때 애니메이션 */
+@keyframes notifFade {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.notif-box.show {
+    display: flex;
+    animation: notifFade 0.2s ease;
+}
+
+@media (max-width: 1080px) {
+    .sidebar {
+        flex-direction: row;
+        width: 100%;
+        border-radius: 0 0 32px 32px;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
