@@ -39,7 +39,7 @@ public class StoreQueryController {
     @Operation(summary = "기간 한정 및 최신 아이템 조회", description = "기간 한정 아이템과 최신 등록 아이템을 조회합니다.")
     public StoreHighlightResponseDto getHighlights(
             @RequestParam(name = "limitedSize", required = false) Integer limitedSize,
-            @RequestParam(name = "latestSize", required = false) Integer limitedSize) {
+            @RequestParam(name = "latestSize", required = false) Integer latestSize) {
         return storeQueryService.getHighlights(limitedSize, latestSize);
     }
 

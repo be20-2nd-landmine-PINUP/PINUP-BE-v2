@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import pinup.backend.store.command.domain.StoreItemCategory;
 import pinup.backend.store.command.domain.StoreLimitType;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,5 +33,6 @@ public class StoreRequestDto {
     private StoreLimitType limitType;
     @Schema(description = "아이템 이미지 URL", example = "https://cdn.pinup.com/store/seoul.png")
     private String imageUrl;
-
+    @Schema(description = "아이템 등록 일시 (미전달 시 서버에서 현재 시각으로 설정)", example = "2024-05-01T12:34:56")
+    private LocalDateTime createdAt;
 }

@@ -63,6 +63,7 @@ public class Store {
     private boolean isActive = true;
 
     // 아아템 생성 시간
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     // 아이템 정보 수정 메서드

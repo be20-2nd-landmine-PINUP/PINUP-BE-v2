@@ -11,13 +11,15 @@ import pinup.backend.store.query.mapper.StoreMapper;
 import java.util.Collections;
 import java.util.List;
 
-import static org.springframework.beans.support.PagedListHolder.DEFAULT_PAGE_SIZE;
-
 @Service
 @RequiredArgsConstructor
 public class StoreQueryService {
 
     private final StoreMapper storeMapper;
+
+    private static final int DEFAULT_HIGHLIGHT_SIZE = 4;
+    private static final int DEFAULT_PAGE_SIZE = 6;
+    private static final int MAX_PAGE_COUNT = 10;
 
     // 전체 아이템 조회
     public List<StoreSummaryResponseDto> getActiveItems() {
@@ -28,11 +30,9 @@ public class StoreQueryService {
     public StoreDetailResponseDto getItemById(Integer itemId) {
         return storeMapper.findItemById(itemId);
     }
-}
 
     // 기간 한정 + 최신 아이템 조회
-    public StoreHighlightResponseDto getHighlights(Integer limitedSize, Integer latestSize)
-    {
+    public StoreHighlightResponseDto getHighlights(Integer limitedSize, Integer latestSize) {
         int limited = normalizeHighlightSize(limitedSize);
         int latest = normalizeHighlightSize(latestSize);
 
@@ -44,17 +44,17 @@ public class StoreQueryService {
 
     // 페이지네이션 조회
     public StorePageResponseDto getPagedItems(int page, int size) {
-    if (page < 0) {
-        throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
-    }
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 번호는 0 이상이어야 합니다.");
+        }
 
-    if (page >= MAX_PAGE_COUNT) {
-        throw new IllegalArgumentException("페이지 번호는 최대 " + + (MAX_PAGE_COUNT - 1) + " 까지만 조회할 수 있습니다.");
-    }
+        if (page >= MAX_PAGE_COUNT) {
+            throw new IllegalArgumentException("페이지 번호는 최대 " + (MAX_PAGE_COUNT - 1) + " 까지만 조회할 수 있습니다.");
+        }
 
-    int pageSize = normalizePageSize(size);
-    Long totalItems = storeMapper.countActiveItems();
-    int totalPages = calculateTotalPages(totalItems, pageSize);
+        int pageSize = normalizePageSize(size);
+        long totalItems = storeMapper.countActiveItems();
+        int totalPages = calculateTotalPages(totalItems, pageSize);
 
         if (totalPages == 0) {
             return StorePageResponseDto.builder()
@@ -88,24 +88,24 @@ public class StoreQueryService {
     }
 
     private int normalizeHighlightSize(Integer size) {
-    if (size == null || size <= 0) {
-        return DEFAULT_HIGHLIGHT_SIZE;
-    }
-    return size;
+        if (size == null || size <= 0) {
+            return DEFAULT_HIGHLIGHT_SIZE;
+        }
+        return size;
     }
 
     private int normalizePageSize(int size) {
-    if (size <= 0) {
-        return DEFAULT_PAGE_SIZE;
-    }
-    return Math.min(size, DEFAULT_PAGE_SIZE);
+        if (size <= 0) {
+            return DEFAULT_PAGE_SIZE;
+        }
+        return Math.min(size, DEFAULT_PAGE_SIZE);
     }
 
     private int calculateTotalPages(long totalItems, int pageSize) {
-    if (totalItems == 0) {
-        return 0;
-    }
-    int total = (int) Math.ceil((double) totalItems / pageSize);
-    return Math.min(total, MAX_PAGE_COUNT);
+        if (totalItems == 0) {
+            return 0;
+        }
+        int total = (int) Math.ceil((double) totalItems / pageSize);
+        return Math.min(total, MAX_PAGE_COUNT);
     }
 }
