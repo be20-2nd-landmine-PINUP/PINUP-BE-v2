@@ -17,6 +17,11 @@
     letter-spacing: 0.06em;
 }
 
+.logo-icon {
+    width: 28px;
+    margin-right: 3px;
+}
+
 .sidebar-nav {
     width: 100%;
     display: flex;

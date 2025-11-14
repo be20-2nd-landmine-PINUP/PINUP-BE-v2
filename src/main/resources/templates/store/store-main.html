@@ -42,7 +42,8 @@
         /* 전체 레이아웃 */
         .layout {
             display: flex;
-            min-height: 100vh;
+            /*height: 100vh;*/
+            overflow: visible;
         }
 
         .main {
@@ -404,6 +405,17 @@
             from { opacity: 0; transform: translateY(8px); }
             to   { opacity: 1; transform: translateY(0); }
         }
+
+        /* 반응형 */
+        @media (max-width: 1080px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .main {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 
@@ -418,7 +430,7 @@
 
         <!-- Topbar -->
         <div class="topbar">
-            <div style="font-size: 24px; font-weight: 700;">상점</div>
+            <div style="font-size: 24px; font-weight: 700;">🛒 상점</div>
 
             <div class="search-box">
                 <input type="text" placeholder="아이템 검색하기">
