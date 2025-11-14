@@ -12,10 +12,19 @@ public class NoticeViewController {
 
     private final NoticeQueryService noticeQueryService;
 
-    // 관리자 공지 목록 페이지 (HTML 렌더링)
-    @GetMapping("/admin/notices")
-    public String getNoticeList(Model model) {
+    /** 사용자 공지 목록 페이지 */
+    @GetMapping("/notices")
+    public String getUserNoticeList(Model model) {
         model.addAttribute("noticeList", noticeQueryService.getAllNotices());
-        return "notices"; // templates/admin/notices.html
+        model.addAttribute("isAdminPage", false);
+        return "notices";
+    }
+
+    /** 관리자 공지 목록 페이지 */
+    @GetMapping("/admin/notices")
+    public String getAdminNoticeList(Model model) {
+        model.addAttribute("noticeList", noticeQueryService.getAllNotices());
+        model.addAttribute("isAdminPage", true);
+        return "notices";
     }
 }
