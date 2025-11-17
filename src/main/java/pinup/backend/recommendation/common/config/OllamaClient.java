@@ -38,8 +38,6 @@ public class OllamaClient {
     // 응답 JSON 매핑용 내부 클래스
     @lombok.Data
     public static class OllamaResponse {
-        private String model;
-        private String created_at;
         private String response; // 여기에 모델 답변이 들어옴
         // 다른 필드는 필요하면 나중에 추가
     }
