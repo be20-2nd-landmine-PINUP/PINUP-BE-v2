@@ -2,6 +2,7 @@ package pinup.backend.recommendation.common.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,9 +13,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OllamaClient {
 
-    private final WebClient webClient = WebClient.builder()
-            .baseUrl("http://localhost:11434") // Ollama 기본 주소
-            .build(); // 로컬로만 돌리도록 여기에 url 작성함. 차후 yml파일로 옮김
+    private final OllamaProperties properties;
+
+    private WebClient webClient;
+
+    @PostConstruct
+    public void init() {
+        this.webClient = WebClient.builder()
+                .baseUrl(properties.getBaseUrl())
+                .build();
+    }
 
     public String generate(String prompt) {
         Map<String, Object> body = Map.of(
