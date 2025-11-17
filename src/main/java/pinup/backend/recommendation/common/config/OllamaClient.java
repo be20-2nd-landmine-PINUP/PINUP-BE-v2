@@ -12,7 +12,7 @@ public class OllamaClient {
 
     private final WebClient webClient = WebClient.builder()
             .baseUrl("http://localhost:11434") // Ollama 기본 주소
-            .build();
+            .build(); // 로컬로만 돌리도록 여기에 url 작성함. 차후 yml파일로 옮김
 
     public String generate(String prompt) {
         Map<String, Object> requestBody = Map.of(
