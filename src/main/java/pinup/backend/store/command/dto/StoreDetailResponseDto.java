@@ -1,15 +1,15 @@
 package pinup.backend.store.command.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import pinup.backend.conquer.command.domain.entity.Region;
 import pinup.backend.store.command.domain.Inventory;
 import pinup.backend.store.command.domain.Store;
 
+import java.time.LocalDateTime;
+
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -32,6 +32,8 @@ public class StoreDetailResponseDto {
     private Boolean isActive;
     @Schema(description = "판매 정책", example = "LIMITED")
     private String limitType;
+    @Schema(description = "아이템 등록 일시", example = "2024-05-01T12:34:56")
+    private LocalDateTime createdAt;
 
     //지역 정보
     @Schema(description = "행정구역 ID", example = "101")
@@ -57,6 +59,7 @@ public class StoreDetailResponseDto {
                 .imageUrl(store.getImageUrl())
                 .isActive(store.isActive())
                 .limitType(store.getLimitType().name())
+                .createdAt(store.getCreatedAt())
                 .regionId((Long) resolveRegionId(store.getRegion()))
                 .regionName(resolveRegionName(store.getRegion()))
                 .isEquipped(null) // 조회 시엔 null
@@ -78,6 +81,7 @@ public class StoreDetailResponseDto {
                 .price(null)
                 .isActive(null)
                 .limitType(store.getLimitType().name())
+                .createdAt(store.getCreatedAt())
                 .regionId((Long) resolveRegionId(store.getRegion()))
                 .regionName(resolveRegionName(store.getRegion()))
                 .build();

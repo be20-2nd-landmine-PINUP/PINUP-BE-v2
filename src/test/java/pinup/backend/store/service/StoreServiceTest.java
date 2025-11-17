@@ -12,6 +12,7 @@ import pinup.backend.store.command.repository.StoreRepository;
 import pinup.backend.store.command.service.InventoryService;
 import pinup.backend.store.command.service.StoreService;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +49,7 @@ class StoreServiceTest {
                 .category(StoreItemCategory.BUILDING)
                 .limitType(StoreLimitType.LIMITED)
                 .imageUrl("image.png")
+                .createdAt(LocalDateTime.now())
                 .isActive(true)
                 .build();
     }

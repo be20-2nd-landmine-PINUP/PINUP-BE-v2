@@ -6,6 +6,8 @@ import pinup.backend.conquer.command.domain.entity.Region;
 import pinup.backend.member.command.domain.Admin;
 import pinup.backend.store.command.dto.StoreRequestDto;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -60,6 +62,10 @@ public class Store {
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 
+    // 아아템 생성 시간
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
     // 아이템 정보 수정 메서드
     public void update(StoreRequestDto dto, Region region) {
         this.region = region;
@@ -79,5 +85,10 @@ public class Store {
     //아이템 수정(관리자 전용)
     public void updateInfo(
             String name, String description, int price, StoreItemCategory category, StoreLimitType limitType, String imageUrl) {
+    }
+
+    @PrePersist
+    private void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 }
