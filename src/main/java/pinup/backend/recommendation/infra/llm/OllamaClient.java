@@ -36,8 +36,8 @@ public class OllamaClient {
 
         // JSON 안에서 "response" 필드만 꺼내기
         try {
-            com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
-            com.fasterxml.jackson.databind.JsonNode root = om.readTree(json);
+            ObjectMapper om = new ObjectMapper();
+            JsonNode root = om.readTree(json);
             String text = root.path("response").asText();
             if (text == null || text.isEmpty()) {
                 return json; // 혹시 response가 없으면 전체 JSON 반환
