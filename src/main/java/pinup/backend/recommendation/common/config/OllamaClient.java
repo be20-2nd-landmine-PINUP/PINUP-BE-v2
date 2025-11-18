@@ -13,16 +13,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OllamaClient {
 
-    private final OllamaProperties properties;
 
-    private WebClient webClient;
-
-    @PostConstruct
-    public void init() {
-        this.webClient = WebClient.builder()
-                .baseUrl(properties.getBaseUrl())
-                .build();
-    }
+    private final WebClient webClient = WebClient.builder()
+            .baseUrl("http://localhost:11434") // 🔥 다시 하드코딩
+            .build();
 
     public String generate(String prompt) {
         Map<String, Object> body = Map.of(
@@ -40,12 +34,19 @@ public class OllamaClient {
 
         System.out.println("[OLLAMA RAW JSON]\n" + json);
 
+        // JSON 안에서 "response" 필드만 꺼내기
         try {
-            ObjectMapper om = new ObjectMapper();
-            JsonNode root = om.readTree(json);
-            return root.path("response").asText(); // 🔥 모델의 텍스트만 뽑기
+            com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode root = om.readTree(json);
+            String text = root.path("response").asText();
+            if (text == null || text.isEmpty()) {
+                return json; // 혹시 response가 없으면 전체 JSON 반환
+            }
+            return text;
         } catch (Exception e) {
-            return json; // 파싱 실패하면 그냥 전체 JSON 반환
+            // 파싱 실패하면 전체 json 반환 (나중에 로그 보고 다듬자)
+            e.printStackTrace();
+            return json;
         }
     }
 }
