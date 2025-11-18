@@ -1,4 +1,4 @@
-package pinup.backend.recommendation.query.dto;
+package pinup.backend.recommendation.util;
 
 import java.time.LocalDate;
 

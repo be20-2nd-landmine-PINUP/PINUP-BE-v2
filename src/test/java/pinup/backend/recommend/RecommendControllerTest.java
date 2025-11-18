@@ -10,9 +10,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import pinup.backend.member.command.domain.Users;
 import pinup.backend.member.command.repository.UserRepository;
-import pinup.backend.recommendation.commend.RecommendRepository;
-import pinup.backend.recommendation.common.config.OllamaClient;
-import pinup.backend.recommendation.entity.Recommend;
+import pinup.backend.recommendation.domain.RecommendRepository;
+import pinup.backend.recommendation.infra.llm.OllamaClient;
+import pinup.backend.recommendation.domain.Recommend;
 
 import java.time.LocalDate;
 import java.util.List;

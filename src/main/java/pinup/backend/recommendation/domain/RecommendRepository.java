@@ -1,7 +1,6 @@
-package pinup.backend.recommendation.commend;
+package pinup.backend.recommendation.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import pinup.backend.recommendation.entity.Recommend;
 
 import java.util.Optional;
 

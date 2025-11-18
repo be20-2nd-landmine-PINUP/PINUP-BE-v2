@@ -1,4 +1,4 @@
-package pinup.backend.recommendation.common.config;
+package pinup.backend.recommendation.infra.llm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
