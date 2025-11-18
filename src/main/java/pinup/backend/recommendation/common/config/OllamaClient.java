@@ -20,7 +20,7 @@ public class OllamaClient {
 
     public String generate(String prompt) {
         Map<String, Object> body = Map.of(
-                "model", "llama3:8b",  // 설치한 모델 이름 (ex: "llama3", "qwen2", ...)
+                "model", "exaone3.5:7.8b",  // 설치한 모델 이름
                 "prompt", prompt,
                 "stream", false
         );
