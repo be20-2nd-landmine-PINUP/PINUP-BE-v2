@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>월간 랭킹 | PIN-UP</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif;
+            display: flex;
+            background: #e5e5e5;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #0d6efd, #0052ff);
+            color: #fff;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            border-radius: 999px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            opacity: 0.85;
+        }
+        .nav-item.active {
+            background: rgba(255,255,255,0.25);
+            opacity: 1;
+        }
+        .nav-item span {
+            margin-left: 6px;
+        }
+
+        /* 메인 영역 */
+        .main {
+            flex: 1;
+            padding: 32px 40px;
+        }
+        .panel {
+            background: #f9fbff;
+            border-radius: 28px;
+            padding: 32px 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            height: calc(100vh - 64px);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .panel-header-left {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .panel-header-left span.emoji {
+            margin-right: 8px;
+        }
+
+        /* 연월 선택 */
+        .month-box {
+            display: inline-flex;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 999px;
+            padding: 6px 18px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+            gap: 12px;
+        }
+        .month-box input[type="month"] {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .month-box button {
+            border: none;
+            background: #0d6efd;
+            color: #fff;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+
+        .content-row {
+            display: grid;
+            grid-template-columns: 3fr 1.5fr;
+            gap: 24px;
+            flex: 1;
+        }
+
+        /* 랭킹 테이블 카드 */
+        .table-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        thead {
+            background: #f3f5ff;
+        }
+        thead th {
+            padding: 10px 8px;
+            font-weight: 600;
+        }
+        tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        tbody td {
+            padding: 9px 8px;
+            text-align: center;
+        }
+        tbody tr:nth-child(odd) { background: #ffffff; }
+        tbody tr:nth-child(even) { background: #fbfbff; }
+
+        /* 내 랭킹 카드 */
+        .my-rank-card {
+            background: linear-gradient(135deg, #007bff, #12c2e9, #4facfe);
+            border-radius: 24px;
+            padding: 24px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+        .my-rank-title {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .my-rank-main {
+            font-size: 26px;
+            font-weight: 700;
+        }
+        .my-rank-sub {
+            margin-top: 10px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .empty-text {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<!-- 왼쪽 사이드바 -->
+<aside class="sidebar">
+    <div class="sidebar-title">PIN-UP</div>
+    <div class="nav-item"><span>●</span><span>홈</span></div>
+    <div class="nav-item"><span>●</span><span>마이페이지</span></div>
+    <div class="nav-item"><span>●</span><span>내 피드</span></div>
+    <div class="nav-item"><span>●</span><span>상점</span></div>
+    <div class="nav-item"><span>●</span><span>알림</span></div>
+    <div class="nav-item"><span>●</span><span>설정</span></div>
+    <div class="nav-item active"><span>●</span><span>랭킹</span></div>
+</aside>
+
+<!-- 오른쪽 메인 -->
+<main class="main">
+    <section class="panel">
+        <!-- 상단 타이틀 + 월 선택 -->
+        <div class="panel-header">
+            <div class="panel-header-left">
+                <span class="emoji">🏆</span>
+                <span>월간 랭킹 TOP 100</span>
+            </div>
+            <div class="month-box">
+                <input type="month" id="monthInput">
+                <button id="applyBtn">적용</button>
+            </div>
+        </div>
+
+        <!-- 아래: 랭킹 테이블 + 내 랭킹 카드 -->
+        <div class="content-row">
+            <!-- 랭킹 테이블 -->
+            <div class="table-card">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>순위</th>
+                        <th>닉네임</th>
+                        <th>정복지역 수</th>
+                        <th>마지막 정복일</th>
+                    </tr>
+                    </thead>
+                    <tbody id="rankBody">
+                    <!-- JS로 채움 -->
+                    </tbody>
+                </table>
+                <div id="rankEmpty" class="empty-text" style="display:none;">
+                    데이터가 없습니다.
+                </div>
+            </div>
+
+            <!-- 내 랭킹 카드 -->
+            <div class="my-rank-card" id="myRankCard">
+                <div class="my-rank-title">나의 랭킹 🏆</div>
+                <div class="my-rank-main">로딩 중...</div>
+                <div class="my-rank-sub" id="myRankSub"></div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    // ★ 실제 로그인 연동되면, 여기는 서버에서 userId를 내려주거나
+    //   JS에서 쿠키/세션으로 가져오도록 변경하세요.
+    const USER_ID = 1;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const monthInput = document.getElementById("monthInput");
+        const applyBtn = document.getElementById("applyBtn");
+
+        // 기본값: 이번 달
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        monthInput.value = `${yyyy}-${mm}`;
+
+        // 첫 로딩
+        loadRanking(yyyy, Number(mm));
+
+        applyBtn.addEventListener("click", () => {
+            if (!monthInput.value) return;
+            const [y, m] = monthInput.value.split("-");
+            loadRanking(Number(y), Number(m));
+        });
+    });
+
+    // Instant → "YYYY-MM-DD" 로 표시
+    function formatDate(instantString) {
+        if (!instantString) return "-";
+        const d = new Date(instantString);
+        if (isNaN(d.getTime())) return "-";
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+    }
+
+    async function loadRanking(year, month) {
+        const rankBody = document.getElementById("rankBody");
+        const rankEmpty = document.getElementById("rankEmpty");
+        const myRankCard = document.getElementById("myRankCard");
+        const myRankSub = document.getElementById("myRankSub");
+
+        rankBody.innerHTML = `<tr><td colspan="4">불러오는 중...</td></tr>`;
+        rankEmpty.style.display = "none";
+
+        try {
+            // 1) TOP100 랭킹 조회
+            const res = await fetch(`/ranks/monthly?year=${year}&month=${month}`);
+            const list = await res.json();
+
+            if (!Array.isArray(list) || list.length === 0) {
+                rankBody.innerHTML = "";
+                rankEmpty.style.display = "block";
+            } else {
+                rankBody.innerHTML = list.map((item) => {
+                    // MonthlyRankDto 필드명 그대로 사용
+                    const rank = item.rank;
+                    const nickname = item.nickname;
+                    const captureCount = item.captureCount ?? 0;
+                    const lastCaptureAt = formatDate(item.lastCaptureAt);
+
+                    let rankLabel = `${rank}위`;
+                    if (rank === 1) rankLabel = `1위 🥇`;
+                    else if (rank === 2) rankLabel = `2위 🥈`;
+                    else if (rank === 3) rankLabel = `3위 🥉`;
+
+                    return `
+                        <tr>
+                            <td>${rankLabel}</td>
+                            <td>${nickname}</td>
+                            <td>${captureCount}개</td>
+                            <td>${lastCaptureAt}</td>
+                        </tr>
+                    `;
+                }).join("");
+            }
+
+            // 2) 내 랭킹 조회
+            const myRes = await fetch(`/ranks/monthly/me?year=${year}&month=${month}&userId=${USER_ID}`);
+            const my = await myRes.json();
+
+            // MyRankDto: userId, nickname, captureCount, rank, message
+            const mainEl = myRankCard.querySelector(".my-rank-main");
+
+            if (my && my.message) {
+                // message 안에 "현재 n위입니다." 또는 "순위권 밖입니다." 가 이미 들어있음
+                mainEl.innerText = my.message;
+            } else if (my && my.rank != null) {
+                mainEl.innerText = `현재 ${my.rank}위입니다.`;
+            } else {
+                mainEl.innerText = "순위 정보를 불러오지 못했습니다.";
+            }
+
+            if (my && my.captureCount != null) {
+                myRankSub.innerText = `정복지역 수: ${my.captureCount}개`;
+            } else {
+                myRankSub.innerText = "";
+            }
+
+        } catch (e) {
+            console.error(e);
+            rankBody.innerHTML = `<tr><td colspan="4">에러가 발생했습니다.</td></tr>`;
+            myRankCard.querySelector(".my-rank-main").innerText = "내 랭킹을 불러오지 못했어요 😢";
+            myRankSub.innerText = "";
+        }
+    }
+</script>
+</body>
+</html>
