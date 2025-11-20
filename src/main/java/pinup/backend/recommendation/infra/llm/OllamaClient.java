@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -14,9 +15,19 @@ import java.util.Map;
 public class OllamaClient {
 
 
-    private final WebClient webClient = WebClient.builder()
-            .baseUrl("http://localhost:11434") // 🔥 다시 하드코딩
-            .build();
+    private final WebClient.Builder webClientBuilder;
+
+    @Value("${ollama.base-url}")
+    private String ollamaBaseUrl;
+
+    private WebClient webClient;
+
+    @PostConstruct
+    void init() {
+        this.webClient = webClientBuilder
+                .baseUrl(ollamaBaseUrl)
+                .build();
+    }
 
     public String generate(String prompt) {
         Map<String, Object> body = Map.of(
