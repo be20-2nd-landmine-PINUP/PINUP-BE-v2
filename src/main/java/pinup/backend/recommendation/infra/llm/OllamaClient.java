@@ -15,19 +15,9 @@ import java.util.Map;
 public class OllamaClient {
 
 
-    private final WebClient.Builder webClientBuilder;
-
-    @Value("${ollama.base-url}")
-    private String ollamaBaseUrl;
-
-    private WebClient webClient;
-
-    @PostConstruct
-    void init() {
-        this.webClient = webClientBuilder
-                .baseUrl(ollamaBaseUrl)
-                .build();
-    }
+    private final WebClient webClient = WebClient.builder()
+            .baseUrl("http://localhost:11434") // 🔥 다시 하드코딩
+            .build();
 
     public String generate(String prompt) {
         Map<String, Object> body = Map.of(
