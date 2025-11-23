@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import pinup.backend.member.command.domain.Users;
 import pinup.backend.member.command.repository.UserRepository;
 import pinup.backend.recommendation.domain.RecommendRepository;
-import pinup.backend.recommendation.infra.llm.OllamaClient;
+import pinup.backend.recommendation.infra.llm.OpenAiClient;
 import pinup.backend.recommendation.domain.Recommend;
 import pinup.backend.recommendation.util.SeasonUtil;
 
@@ -18,7 +18,7 @@ public class RecommendQueryService {
 
     private final UserRepository userRepository;
     private final RecommendRepository recommendRepository;
-    private final OllamaClient ollamaClient;  // 🔥 이걸로 교체
+    private final OpenAiClient OpenAiClient;  // 🔥 이걸로 교체
 
     public RecommendationResponseDTO recommendForUser(Long userId) {
 
@@ -50,9 +50,10 @@ public class RecommendQueryService {
         String prompt = buildPrompt(request);
         System.out.println("[PROMPT]\n" + prompt);
 
-        // 🔥 1) Ollama 호출 → 한 줄짜리 문자열 받기
-        String raw = ollamaClient.generate(prompt);
-        System.out.println("[OLLAMA RAW]\n" + raw);
+        // 🔥 1) OpenAI 호출 → 한 줄짜리 문자열 받기
+        String raw = OpenAiClient.generate(prompt);
+        System.out.println("[OPENAI RAW]\n" + raw);
+
 
         // 6) "region|||title|||description|||regionId" 파싱
         return parseSimple(raw);
