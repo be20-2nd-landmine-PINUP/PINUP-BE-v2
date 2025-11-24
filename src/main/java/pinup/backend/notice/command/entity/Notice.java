@@ -5,11 +5,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pinup.backend.member.command.domain.Admin;
+import pinup.backend.notice.command.dto.NoticePatchRequest;
 
 import java.time.LocalDateTime;
 
@@ -37,11 +40,11 @@ public class Notice {
     @Column(name = "notice_content")
     private String noticeContent;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -54,5 +57,10 @@ public class Notice {
         this.noticeTitle = noticeTitle;
         this.noticeContent = noticeContent;
         this.admin = admin;
+    }
+
+    public void patchNotice(NoticePatchRequest request) {
+        this.noticeTitle = request.getNoticeTitle() == null ? this.noticeTitle : request.getNoticeTitle();
+        this.noticeContent = request.getNoticeContent() == null ? this.noticeContent : request.getNoticeContent();
     }
 }
