@@ -50,55 +50,40 @@ public class RecommendQueryService {
         request.setPreferredCategory(String.valueOf(user.getPreferredCategory()));
         request.setCurrentSeason(currentSeason);
         request.setLastRegion(lastRegion);
+
+        // 데이터 기반으로 spot 1개 선택
+        TourSpot spot = pickBestSpot(request);
+
         //프롬프트 생성
-        String prompt = buildPrompt(request);
-        System.out.println("[PROMPT]\n" + prompt);
-
-        // 🔥 1) OpenAI 호출 → 한 줄짜리 문자열 받기
+        String prompt = buildPrompt(request, spot);
         String raw = OpenAiClient.generate(prompt);
-        System.out.println("[OPENAI RAW]\n" + raw);
 
-
-        // 6) "region|||title|||description|||regionId" 파싱
-        return parseSimple(raw);
-    }
-
-    private RecommendationResponseDTO parseSimple(String raw) {
-        // 여러 줄 올 수 있으니까, "|||" 들어있는 줄 하나 골라서 사용
+        // 4️⃣ "title|||description" 파싱
+        String title = "추천 제목";
+        String description = raw;
         String targetLine = null;
-        for (String line : raw.split("\\R")) { // \R = 모든 종류의 줄바꿈
+
+        for (String line : raw.split("\\R")) {
             if (line.contains("|||")) {
                 targetLine = line.trim();
                 break;
             }
         }
-        if (targetLine == null) {
-            targetLine = raw.trim().replace("\n", " ");
+        if (targetLine != null) {
+            String[] parts = targetLine.split("\\|\\|\\|");
+            if (parts.length >= 2) {
+                title = parts[0].trim();
+                description = parts[1].trim();
+            }
         }
-
-        String[] parts = targetLine.split("\\|\\|\\|");
-        if (parts.length < 4) {
-            RecommendationResponseDTO fallback = new RecommendationResponseDTO();
-            fallback.setRegion("추천 생성 실패");
-            fallback.setTitle("잠시 후 다시 시도해주세요");
-            fallback.setDescription(targetLine);
-            fallback.setRegionId(0L);
-            return fallback;
-        }
-
-        RecommendationResponseDTO dto = new RecommendationResponseDTO();
-        dto.setRegion(parts[0].trim());
-        dto.setTitle(parts[1].trim());
-        dto.setDescription(parts[2].trim());
-
-        try {
-            dto.setRegionId(Long.parseLong(parts[3].trim()));
-        } catch (NumberFormatException e) {
-            dto.setRegionId(0L);
-        }
-
-        return dto;
+        RecommendationResponseDTO response = new RecommendationResponseDTO();
+        response.setRegion(spot.getName());
+        response.setTitle(title);
+        response.setDescription(description);
+        response.setRegionId(spot.getId());
+        return response;
     }
+
 
     private String convertGender(Users.Gender gender) {
         return switch (gender) {
