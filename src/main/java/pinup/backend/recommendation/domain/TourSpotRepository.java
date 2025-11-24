@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pinup.backend.recommendation.query.TourSpot;
+import jakarta.annotation.PostConstruct;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class TourSpotRepository {
     private final List<TourSpot> spots = new ArrayList<>();
 
     // 애플리케이션 시작할 때 JSON 읽어서 메모리에 로딩
-    @javax.annotation.PostConstruct
+    @PostConstruct
     public void load() {
         try (InputStream is = getClass().getClassLoader()
                 .getResourceAsStream("data/tour_spots.json")) { // 경로: src/main/resources/data/tour_spots.json
