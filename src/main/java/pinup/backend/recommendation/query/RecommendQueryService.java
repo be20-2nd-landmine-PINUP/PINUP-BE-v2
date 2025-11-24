@@ -127,8 +127,22 @@ public class RecommendQueryService {
                 spot.getSeasons().contains(pref.getCurrentSeason())) {
             score += 20;
         }
+        int age = pref.getAge();
+        String cat = spot.getCategory(); // 자연, 체험, 역사, 문화 등
+        // 20-30대: 체험/자연 ↑
+        if (age < 40) {
+            if ("체험".equals(cat) || "자연".equals(cat)) {
+                score += 15;   // 약간의 보정
+            }
+        }
 
-        // 필요하면 여기서 나이/성별/지역 같은 것도 추가 가중치 가능
+        // 40대 이상: 문화/역사 ↑
+        if (age >= 40) {
+            if ("문화".equals(cat) || "역사".equals(cat)) {
+                score += 15;
+            }
+        }
+
 
         return score;
     }
