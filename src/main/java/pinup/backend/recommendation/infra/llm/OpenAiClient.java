@@ -26,7 +26,7 @@ public class OpenAiClient {
     public String generate(String prompt) {
         // Chat Completions 요청 바디
         Map<String, Object> body = Map.of(
-                "model", "gpt-4.1-mini",   // 💸 저렴한 모델
+                "model", "o3-mini",   // 💸 저렴한 모델
                 "messages", List.of(
                         // 필요하면 여기 system 역할 따로 빼도 됨
                         Map.of("role", "user", "content", prompt)
