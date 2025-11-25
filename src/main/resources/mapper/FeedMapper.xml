@@ -25,6 +25,7 @@
         f.feed_id                         AS id,
     f.title                           AS title,
     f.image_url                       AS imageUrl,
+    f.thumbnail_url                   AS thumbnailUrl,
     COALESCE(u.nickname, u.user_name) AS authorName,
     f.created_at                      AS createdAt
     </sql>
@@ -37,6 +38,7 @@
     f.title                           AS title,
     f.content                         AS content,
     f.image_url                       AS imageUrl,
+    f.thumbnail_url                   AS thumbnailUrl,
     f.like_count                      AS likeCount,
     f.created_at                      AS createdAt
     </sql>

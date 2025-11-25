@@ -35,6 +35,9 @@ public class Feed {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
     @Column(name = "like_count")
     private Integer likeCount;
 
@@ -47,18 +50,20 @@ public class Feed {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Feed(Users user, String title, String content, String imageUrl) {
+    public Feed(Users user, String title, String content, String imageUrl, String thumbnailUrl) {
         this.userId = user;
         this.title = title;
         this.content = content;
         this.imageUrl = imageUrl;
+        this.thumbnailUrl = thumbnailUrl;
         this.likeCount = 0;
     }
 
     // 피드 수정 간 사용할 메소드
-    public void update(String title, String content, String imageUrl) {
+    public void update(String title, String content, String imageUrl, String thumbnailUrl) {
         if (title != null && !title.isBlank()) this.title = title;
         if (content != null && !content.isBlank()) this.content = content;
         if (imageUrl != null && !imageUrl.isBlank()) this.imageUrl = imageUrl;
+        if (thumbnailUrl != null && !thumbnailUrl.isBlank()) this.thumbnailUrl = thumbnailUrl;
     }
 }

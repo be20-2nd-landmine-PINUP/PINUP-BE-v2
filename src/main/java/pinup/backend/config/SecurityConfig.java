@@ -38,9 +38,9 @@ public class SecurityConfig{
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/api/notifications/stream", "/admin/**")
+                        .requestMatchers("/**", "/login", "/css/**", "/js/**", "/images/**", "/api/notifications/stream", "/admin/**")
                         .permitAll()
-                        .anyRequest().authenticated()
+                        /*.anyRequest().authenticated()*/
                 )
                 // 사용자: OAuth2 로그인
                 .oauth2Login(oauth2 -> oauth2
@@ -63,7 +63,6 @@ public class SecurityConfig{
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
                 );
-
         return http.build();
     }
 
