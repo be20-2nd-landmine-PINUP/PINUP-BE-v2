@@ -15,6 +15,24 @@
         ORDER BY user_id DESC
     </select>
 
+    <!-- 전체 회원 목록 페이징 처리를 위한 -->
+    <select id="findUsersWithPaging" resultType="pinup.backend.member.query.dto.UserDto">
+        SELECT
+            user_id AS userId,
+            user_name AS name,
+            nickname,
+            email,
+            status
+        FROM users
+        ORDER BY user_id DESC
+            LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countUsers" resultType="int">
+        SELECT COUNT(*) FROM users
+    </select>
+
+
     <!-- 회원 ID로 단일 조회 -->
     <select id="findUserById" parameterType="int" resultType="pinup.backend.member.query.dto.UserDto">
         SELECT

@@ -17,6 +17,7 @@ public class ReportSpecificResponse {
     public Long feedId;
     public Long adminId;
     public String reason;
+    public String adminStatement;
     public String status;
     public LocalDateTime createdAt;
     public LocalDateTime updatedAt;

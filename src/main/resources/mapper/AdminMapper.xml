@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pinup.backend.member.query.mapper.AdminMapper">
 
-    <!-- 전체 회원 수 (모든 사용자) -->
+    <!-- 전체 회원 수 -->
     <select id="countUsers" resultType="int">
         SELECT COUNT(*)
         FROM users
@@ -14,6 +14,33 @@
         SELECT COUNT(*)
         FROM users
         WHERE DATE(created_at) = CURDATE()
+    </select>
+
+    <!-- 전체 피드 수 -->
+    <select id="countFeeds" resultType="int">
+        SELECT COUNT(*)
+        FROM feed
+    </select>
+
+    <!-- 미처리 신고 -->
+    <select id="countPendingReports" resultType="int">
+        SELECT COUNT(*)
+        FROM report
+        WHERE status = 'ACTIVE'
+    </select>
+
+    <!--  최근 가입 회원  -->
+    <select id="findRecentUsers" resultType="pinup.backend.member.query.dto.UserDto">
+        SELECT
+            user_id AS userId,
+            user_name AS name,
+            nickname,
+            email,
+            status,
+            created_at AS createdAt
+        FROM users
+        ORDER BY created_at DESC
+            LIMIT 10;
     </select>
 
 </mapper>

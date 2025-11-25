@@ -5,15 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
-public class ReportListResponse {
-    public Long reportId;
-    public String reason;
-    public String status;
-    public LocalDateTime createdAt;
+public class ReportInfoResponse {
+    private Long total;
+    private Long active;
+    private Long suspended;
 }
