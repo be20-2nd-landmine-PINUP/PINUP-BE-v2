@@ -38,7 +38,7 @@ public class Inventory {
 
     // 아이템 장착 상태 여부
     @Column(name = "is_equipped", nullable = false)
-    private boolean isEquipped = true;
+    private boolean isEquipped;
 
     // 인벤토리 생성 메서드
     public static Inventory create(Users userId, Store store) {
@@ -47,7 +47,7 @@ public class Inventory {
                 .users(userId)
                 .store(store)
                 .earnedAt(LocalDateTime.now())
-                .isEquipped(true)
+                .isEquipped(false)
                 .build();
     }
 }
