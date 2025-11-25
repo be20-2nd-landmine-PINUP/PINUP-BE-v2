@@ -24,5 +24,19 @@ public class UserQueryService {
         return userMapper.findUserById(id);
     }
 
-    public List<Users> getSuspendedUsers() { return memberCommandRepository.findByStatus(Users.Status.SUSPENDED); }
+    public List<UserDto> getSuspendedUsers() {
+        return memberCommandRepository.findByStatus(Users.Status.SUSPENDED)
+                .stream()
+                .map(user -> {
+                    UserDto dto = new UserDto();
+                    dto.setUserId(user.getUserId());
+                    dto.setName(user.getName());
+                    dto.setNickname(user.getNickname());
+                    dto.setEmail(user.getEmail());
+                    dto.setStatus(user.getStatus().name());
+                    return dto;
+                })
+                .toList();
+    }
+
 }

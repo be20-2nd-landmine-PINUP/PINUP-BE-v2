@@ -28,17 +28,6 @@ public class AdminUserQueryController {
     // 정지된 회원 조회
     @GetMapping("/suspended")
     public List<UserDto> getSuspendedUsers() {
-        return userQueryService.getSuspendedUsers().stream()
-                .map(user -> {
-                    UserDto dto = new UserDto();
-                    dto.setUserId(user.getUserId());
-                    dto.setName(user.getName());
-                    dto.setNickname(user.getNickname());
-                    dto.setEmail(user.getEmail());
-                    dto.setStatus(user.getStatus().name());
-                    return dto;
-                })
-                .toList();
+        return userQueryService.getSuspendedUsers();
     }
-
 }
