@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import pinup.backend.feed.command.entity.Feed;
 import pinup.backend.member.command.domain.Admin;
 import pinup.backend.member.command.domain.Users;
+import pinup.backend.report.command.dto.request.ReportHandleRequest;
 
 import java.time.LocalDateTime;
 
@@ -33,8 +34,11 @@ public class Report {
     @JoinColumn(name = "admin_id")
     private Admin admin;
 
-    @Column(name = "reason", length = 30)
+    @Column(name = "reason", length = 255)
     private String reason;
+
+    @Column(name = "admin_statement", length = 255)
+    private String adminStatement;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -55,5 +59,11 @@ public class Report {
         this.status = status != null ? status : ReportStatus.ACTIVE;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = null;
+    }
+
+    public void handleReport(ReportHandleRequest reportHandleRequest) {
+        this.adminStatement = reportHandleRequest.getAdminStatement();
+        this.status = reportHandleRequest.getReportStatus();
+        this.updatedAt  = LocalDateTime.now();
     }
 }
