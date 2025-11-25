@@ -2,9 +2,11 @@ package pinup.backend.member.query.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import pinup.backend.member.query.dto.AdminDashboardResponse;
+import pinup.backend.member.query.dto.UserDto;
 import pinup.backend.member.query.mapper.AdminMapper;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,4 +23,10 @@ public class AdminQueryService {
                 .reportPending(adminMapper.countPendingReports())
                 .build();
     }
+
+    // 최근 가입한 회원 조회
+    public List<UserDto> getRecentUsers() {
+        return adminMapper.findRecentUsers();
+    }
+
 }

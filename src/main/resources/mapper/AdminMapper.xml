@@ -29,4 +29,18 @@
         WHERE status = 'PENDING'
     </select>
 
+    <!--  최근 가입 회원  -->
+    <select id="findRecentUsers" resultType="pinup.backend.member.query.dto.UserDto">
+        SELECT
+            user_id AS userId,
+            user_name AS name,
+            nickname,
+            email,
+            status,
+            created_at AS createdAt
+        FROM users
+        ORDER BY created_at DESC
+            LIMIT 10;
+    </select>
+
 </mapper>
