@@ -13,4 +13,3 @@ public class RecommendationResponseDTO {
     private Long regionId;          // 매핑되면 저장
 
 }
-
