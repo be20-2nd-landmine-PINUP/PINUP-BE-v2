@@ -26,7 +26,7 @@
     <select id="countPendingReports" resultType="int">
         SELECT COUNT(*)
         FROM report
-        WHERE status = 'PENDING'
+        WHERE status = 'ACTIVE'
     </select>
 
     <!--  최근 가입 회원  -->
