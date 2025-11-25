@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pinup.backend.report.query.dto.ReportInfoResponse;
 import pinup.backend.report.query.dto.ReportListResponse;
 import pinup.backend.report.query.dto.ReportSpecificResponse;
 import pinup.backend.report.query.service.ReportService;
@@ -26,5 +27,10 @@ public class ReportController {
     @GetMapping("/{id}")
     public ResponseEntity<ReportSpecificResponse> getReportById(@PathVariable Long id) {
         return ResponseEntity.ok(reportService.getSpecificReport(id));
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<ReportInfoResponse> getReportInfo() {
+        return  ResponseEntity.ok(reportService.getReportInfo());
     }
 }
