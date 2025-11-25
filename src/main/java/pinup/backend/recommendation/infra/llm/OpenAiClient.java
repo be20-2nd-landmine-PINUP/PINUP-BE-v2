@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class OpenAiClient {
 
     @Value("${openai.api.key}")
