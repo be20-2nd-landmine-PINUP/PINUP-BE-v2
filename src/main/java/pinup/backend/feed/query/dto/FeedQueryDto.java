@@ -11,6 +11,9 @@ public record FeedQueryDto(
         @Schema(description = "피드 ID", example = "619")
         Long id,
 
+        @Schema(description = "작성자 ID", example = "1")
+        Long authorId,
+
         @Schema(description = "작성자 닉네임", example = "waifuser")
         String authorName,
 

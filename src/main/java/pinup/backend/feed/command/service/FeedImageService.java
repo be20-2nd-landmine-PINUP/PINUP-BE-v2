@@ -20,8 +20,13 @@ import javax.imageio.ImageIO;
 @RequiredArgsConstructor
 public class FeedImageService {
 
+    // 실제 저장 디렉토리 (프로젝트 루트 기준 상대 경로)
     @Value("${feed.image.base-path:uploads/feeds}")
     private String basePath;
+
+    // 브라우저에서 접근할 URL prefix
+    @Value("${feed.image.url-prefix:/uploads/feeds}")
+    private String urlPrefix;
 
     private static final String THUMBNAIL_SUFFIX = "_s";
     private static final int THUMBNAIL_SIZE = 300;
@@ -31,10 +36,13 @@ public class FeedImageService {
             return new ImageUploadResult(null, null);
         }
 
-        String originalFilename = sanitizeFilename(Objects.requireNonNull(file.getOriginalFilename(), "이미지 파일 이름이 비어있습니다."));
+        String originalFilename = sanitizeFilename(
+                Objects.requireNonNull(file.getOriginalFilename(), "이미지 파일 이름이 비어있습니다.")
+        );
         String extension = extractExtension(originalFilename);
         String uniqueBaseName = UUID.randomUUID() + "_" + removeExtension(originalFilename);
 
+        // 실제 저장 경로: <프로젝트>/uploads/feeds
         Path uploadDir = Paths.get(basePath).toAbsolutePath().normalize();
         createDirectoriesIfNeeded(uploadDir);
 
@@ -48,7 +56,14 @@ public class FeedImageService {
             throw new IllegalStateException("이미지 저장 중 오류가 발생했습니다.", e);
         }
 
-        return new ImageUploadResult(originalPath.toString(), appendThumbnailSuffix(originalPath.toString()));
+        // 🔹 DB에는 URL 경로만 저장 (/uploads/feeds/파일명)
+        String imageFileName = originalPath.getFileName().toString();
+        String thumbnailFileName = thumbnailPath.getFileName().toString();
+
+        String imageUrl = urlPrefix + "/" + imageFileName;
+        String thumbnailUrl = urlPrefix + "/" + thumbnailFileName;
+
+        return new ImageUploadResult(imageUrl, thumbnailUrl);
     }
 
     public void deleteImages(String imageUrl, String thumbnailUrl) {
@@ -56,30 +71,31 @@ public class FeedImageService {
         deleteIfExists(thumbnailUrl);
     }
 
+    private void deleteIfExists(String urlOrPath) {
+        if (urlOrPath == null || urlOrPath.isBlank()) {
+            return;
+        }
+        try {
+            // 🔹 URL(/uploads/feeds/xxx.png)이든, 옛날 절대경로든
+            // 파일명만 뽑아서 basePath 밑에서 삭제
+            String filename = Paths.get(urlOrPath).getFileName().toString();
+            Path filePath = Paths.get(basePath).toAbsolutePath().normalize().resolve(filename);
+            Files.deleteIfExists(filePath);
+        } catch (IOException ignored) {
+        }
+    }
+
     public String appendThumbnailSuffix(String imageUrl) {
         if (imageUrl == null || imageUrl.isBlank()) {
             return imageUrl;
         }
-
         int dotIndex = imageUrl.lastIndexOf('.');
         if (dotIndex == -1) {
             return imageUrl + THUMBNAIL_SUFFIX;
         }
-
         String name = imageUrl.substring(0, dotIndex);
         String extension = imageUrl.substring(dotIndex);
         return name + THUMBNAIL_SUFFIX + extension;
-    }
-
-    private void deleteIfExists(String path) {
-        if (path == null || path.isBlank()) {
-            return;
-        }
-        try {
-            Files.deleteIfExists(Paths.get(path));
-        } catch (IOException ignored) {
-            // 삭제 실패 시 로그 시스템을 붙이면 추적 가능 (요구사항에 따라 생략)
-        }
     }
 
     private Path appendThumbnailSuffix(Path originalPath) {

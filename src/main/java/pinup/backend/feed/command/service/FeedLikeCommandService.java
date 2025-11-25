@@ -62,6 +62,9 @@ public class FeedLikeCommandService {
             throw new DuplicateLikeException(feedId, userId);
         }
 
-        return new LikeResult(true, feed.getLikeCount());
+        int current = feed.getLikeCount() == null ? 0 : feed.getLikeCount();
+        int newCount = current + 1;
+
+        return new LikeResult(true, newCount);
     }
 }
