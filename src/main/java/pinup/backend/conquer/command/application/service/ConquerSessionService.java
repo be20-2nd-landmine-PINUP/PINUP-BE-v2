@@ -1,7 +1,6 @@
 package pinup.backend.conquer.command.application.service;
 
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.misc.LogManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pinup.backend.conquer.command.application.dto.ConquerEndRequest;
@@ -15,7 +14,7 @@ import pinup.backend.conquer.command.domain.entity.TerritoryVisitLog;
 import pinup.backend.conquer.command.domain.repository.ConquerSessionRepository;
 import pinup.backend.conquer.command.domain.repository.TerritoryRepository;
 import pinup.backend.conquer.command.domain.repository.TerritoryVisitLogRepository;
-import pinup.backend.conquer.query.mapper.RegionMapper;
+import pinup.backend.conquer.command.mapper.RegionMapper;
 import pinup.backend.member.command.domain.Users;
 import pinup.backend.member.command.repository.UserRepository;
 import pinup.backend.point.command.service.PointService;
