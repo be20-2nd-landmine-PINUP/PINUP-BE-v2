@@ -23,20 +23,20 @@ class ConquerStatControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "conquer@example.com")
     @DisplayName("전체 정복 지역 수 조회 - 성공")
     void userTotalConqueredRegion_returnsCount() throws Exception {
-        mockMvc.perform(get("/conquer/{userId}/stats/total", 1L))
+        mockMvc.perform(get("/conquer/stats/total"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("3"));
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "conquer@example.com")
     @DisplayName("이번 달 정복 지역 수 조회 - 성공")
     void userMonthlyConqueredRegion_returnsCurrentMonthCount() throws Exception {
-        mockMvc.perform(get("/conquer/{userId}/stats/monthly", 1L))
+        mockMvc.perform(get("/conquer/stats/monthly"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("2"));

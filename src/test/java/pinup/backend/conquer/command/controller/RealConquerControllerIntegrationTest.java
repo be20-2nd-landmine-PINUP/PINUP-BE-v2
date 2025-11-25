@@ -39,7 +39,7 @@ class RealConquerControllerIntegrationTest {
     private ConquerSessionRepository conquerSessionRepository;
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "test@example.com")
     @DisplayName("Real 정복 종료 API - 성공 (실제 DB 데이터 기반)")
     void RealEndConqueringTest() throws Exception {
         // Given: Start a conquer session
