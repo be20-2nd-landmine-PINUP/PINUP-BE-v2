@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pinup.backend.member.command.domain.Users;
+import org.locationtech.jts.geom.Coordinates;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
 
@@ -39,6 +41,10 @@ public class Inventory {
     // 아이템 장착 상태 여부
     @Column(name = "is_equipped", nullable = false)
     private boolean isEquipped = true;
+
+    // 지도 꾸미기 방에서 아이템 장착 좌표
+    @Column(name = "equipped_coordinates")
+    private Point equippedCoordinates;
 
     // 인벤토리 생성 메서드
     public static Inventory create(Users userId, Store store) {

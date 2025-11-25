@@ -1,0 +1,44 @@
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pinup.backend.deco.query.mapper.DecoMapper">
+
+    <!--  시도별 인벤토리 조회 -->
+    <!-- 현재 매우매우매우매우매우 저급한 수준으로 ERD 설계가 되어 있기 때문에 아래와 같은 쓸데 없이 복잡한 쿼리문이 만들어짐 -->
+    <!-- ToDo: 추후에 ERD를 수정한 후에 쿼리문을 단순하게 작성하는 리팩토링이 시급함 -->
+    <select id="findAllSidoInventoryItems"
+            resultType="pinup.backend.deco.query.dto.response.InventoryPageResponseDto">
+        WITH sido_selected_item AS (
+            SELECT
+                s.item_id,
+                s.name,
+                s.image_url
+            FROM store AS s
+                     JOIN region r ON r.region_id = s.region_id
+            WHERE r.region_name = #{sidoName}
+        )
+        SELECT
+            si.name         AS itemName,
+            si.image_url    AS imageUrl
+        FROM sido_selected_item AS si
+                 JOIN inventory i ON i.item_id = si.item_id
+        WHERE i.is_equipped = true
+          AND i.user_id = #{userId}
+        ORDER BY i.earned_at DESC
+            LIMIT #{pageable.pageSize}
+        OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countSidoInventoryItems" resultType="long">
+        SELECT COUNT(*)
+        FROM inventory i
+                 JOIN store s ON s.item_id = i.item_id
+                 JOIN region r ON r.region_id = s.region_id
+        WHERE i.is_equipped = true
+          AND i.user_id = #{userId}
+          AND r.region_name = #{sidoName}
+    </select>
+</mapper>
