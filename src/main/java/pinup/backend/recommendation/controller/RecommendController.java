@@ -21,7 +21,7 @@ public class RecommendController {
     public ResponseEntity<RecommendationResponseDTO> recommend(@PathVariable Long userId) {
 
         // 1️⃣ ChatGPT로 추천 생성
-        RecommendationResponseDTO response = recommendQueryService.recommendForUser(userId);
+        RecommendationResponseDTO response = recommendQueryService.recommendScheduleForUser(userId);
 
         // 2️⃣ 결과 저장
         recommendCommandService.saveRecommendation(userId, response);
