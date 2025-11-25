@@ -3,6 +3,7 @@ package pinup.backend.notice.command.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pinup.backend.notice.command.dto.NoticePatchRequest;
 import pinup.backend.notice.command.dto.NoticePostRequest;
 import pinup.backend.notice.command.service.NoticeCommandService;
 
@@ -16,5 +17,15 @@ public class NoticeCommandController {
     @PostMapping
     public ResponseEntity<Long> postNotice(@RequestBody NoticePostRequest request) {
         return ResponseEntity.ok(noticeCommandService.postNotice(request));
+    }
+
+    @PatchMapping
+    public void patchNotice(@RequestBody NoticePatchRequest request) {
+        noticeCommandService.patchNotice(request);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteNotice(@PathVariable Long id) {
+        noticeCommandService.deleteNotice(id);
     }
 }
