@@ -6,9 +6,13 @@ import org.springframework.stereotype.Repository;
 import pinup.backend.report.query.projection.ReportInfoProjection;
 import pinup.backend.report.query.domain.Report;
 
+import java.util.List;
+
 @Repository
 public interface ReportRepository extends JpaRepository<Report, Long> {
     Report findByReportId(Long id);
+
+    List<Report> findAllByOrderByCreatedAtDesc();
 
     @Query(value = """
         SELECT

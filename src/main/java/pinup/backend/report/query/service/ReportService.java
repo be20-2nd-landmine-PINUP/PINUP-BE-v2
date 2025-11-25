@@ -17,7 +17,7 @@ public class ReportService {
     private final ReportRepository reportRepository;
 
     public List<ReportListResponse> getAllReport() {
-        List<Report> reports = reportRepository.findAll();
+        List<Report> reports = reportRepository.findAllByOrderByCreatedAtDesc();
 
         return reports.stream().map(report -> ReportListResponse.builder()
                 .reportId(report.getReportId())
@@ -32,8 +32,9 @@ public class ReportService {
 
         return ReportSpecificResponse.builder()
                 .reportId(report.getReportId())
-                .userId(report.getUser().getUserId())
+                .userId(report.getUser() != null? report.getUser().getUserId() : null)
                 .reason(report.getReason())
+                .adminStatement(report.getAdminStatement())
                 .status(report.getStatus().toString())
                 .createdAt(report.getCreatedAt())
                 .adminId(report.getAdmin() != null ? report.getAdmin().getId() : null)
