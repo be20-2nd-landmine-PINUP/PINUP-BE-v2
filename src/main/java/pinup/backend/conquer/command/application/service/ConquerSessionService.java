@@ -45,12 +45,7 @@ public class ConquerSessionService {
             throw new RuntimeException("No region found for the given coordinates.");
         }
 
-        ConquerSession session = new ConquerSession();
-        session.setUserId(userId);
-        session.setRegionId(region.getRegionId());
-        session.setStartedAt(Instant.now());
-        session.setStatus(ConquerSession.Status.RUNNING);
-
+        ConquerSession session = ConquerSession.start(userId, region.getRegionId(), Instant.now());
         ConquerSession savedSession = conquerSessionRepository.save(session);
 
         return new ConquerStartResponse(savedSession.getId());
@@ -73,14 +68,13 @@ public class ConquerSessionService {
 
         Region currentRegion = regionMapper.findRegion(request.getLongitude(), request.getLatitude());
         if (currentRegion == null || !currentRegion.getRegionId().equals(session.getRegionId())) {
-            session.setStatus(ConquerSession.Status.CANCELED);
+            session.cancel();
             conquerSessionRepository.save(session);
             return ConquerEndResponse.of("FAILED", "You are not in the same region where you started.");
         }
 
         // Success
-        session.setStatus(ConquerSession.Status.COMPLETED);
-        session.setEndedAt(now);
+        session.complete(now);
         conquerSessionRepository.save(session);
 
         Users user = userRepository.findById(userId)
