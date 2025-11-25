@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pinup.backend.member.command.domain.Users;
+import pinup.backend.member.command.repository.UserRepository;
 import pinup.backend.point.command.domain.PointLog;
 import pinup.backend.point.command.domain.PointSourceType;
 import pinup.backend.point.command.domain.TotalPoint;
@@ -20,6 +21,7 @@ public class PointService {
 
     private final PointLogRepository pointLogRepository;
     private final TotalPointRepository totalPointRepository;
+    private final UserRepository userRepository;
 
     /**
      * ✅ 정복(CAPTURE) 완료 시 5점 지급
@@ -30,7 +32,7 @@ public class PointService {
 
         if (pointLogRepository.existsByEventKey(eventKey)) return; // 둘 다 동일 정책
 
-        Users user = Users.builder().userId(userId).build();
+        Users user = getUserReference(userId);
         int pointValue = 5;
 
         // 1️⃣ 포인트 로그 저장
@@ -66,7 +68,7 @@ public class PointService {
             return;
         }
 
-        Users user = Users.builder().userId(userId).build();
+        Users user = getUserReference(userId);
         int bonus = 10;
 
         PointLog log = PointLog.builder()
@@ -131,7 +133,7 @@ public class PointService {
     public void grantLike(Long authorId, Long feedId){
 
         // 2️⃣ 작성자 유저 정보 조회 (엔티티 참조)
-        Users author = Users.builder().userId(authorId).build();
+        Users author = getUserReference(authorId);
         // ⚠️ 실제 환경에서는 userRepository.findById(authorId)
         //     로 가져오는 게 JPA 연관관계 안정성 측면에서 더 좋음.
 
@@ -159,5 +161,8 @@ public class PointService {
 
         // 6️⃣ DB 반영
         totalPointRepository.save(total);
+    }
+    private Users getUserReference(Long userId) {
+        return userRepository.getReferenceById(userId);
     }
 }
