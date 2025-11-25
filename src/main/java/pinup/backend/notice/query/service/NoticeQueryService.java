@@ -23,4 +23,6 @@ public class NoticeQueryService {
     public NoticeSpecificResponse getNoticeById(Long id) {
         return noticeMapper.getNoticeSpecific(id);
     }
+
+    public List<NoticeListResponse> getLatestNotices() { return noticeMapper.getLatestNotices(); }
 }

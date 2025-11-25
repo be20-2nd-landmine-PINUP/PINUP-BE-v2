@@ -39,7 +39,7 @@ public class SecurityConfig{
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/api/notifications/stream")
+                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/api/notifications/stream", "/api/notices/**")
                         .permitAll()
                         .requestMatchers("/admin/login", "/admin/logout").permitAll()
                         .requestMatchers("/admin/**").authenticated()
