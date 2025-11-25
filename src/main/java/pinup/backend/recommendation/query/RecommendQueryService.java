@@ -20,8 +20,7 @@ import java.util.List;
 public class RecommendQueryService {
 
     private final UserRepository userRepository;
-    private final RecommendRepository recommendRepository;
-    private final OpenAiClient OpenAiClient;  // 🔥 이걸로 교체
+    private final OpenAiClient openAiClient;  // 🔥 이걸로 교체
     private final TourSpotRepository tourSpotRepository;
 
     public RecommendationResponseDTO recommendScheduleForUser(Long userId) {
@@ -36,11 +35,6 @@ public class RecommendQueryService {
         // 3️⃣ 현재 계절 계산
         String currentSeason = SeasonUtil.getCurrentSeason(); // "봄", "여름", "가을", "겨울"
 
-        // 4️⃣ 직전에 추천된 지역 조회
-        String lastRegion = recommendRepository
-                .findTopByUserUserIdOrderByRecommendAtDesc(userId)
-                .map(Recommend::getRecommendSpot)
-                .orElse(null);
 
         // 5️⃣ 프롬프트용 요청 DTO
         RecommendationPreferenceRequestDTO request = new RecommendationPreferenceRequestDTO();
@@ -50,12 +44,12 @@ public class RecommendQueryService {
         request.setPreferredCategory(String.valueOf(user.getPreferredCategory()));
         request.setCurrentSeason(currentSeason);
 
-        // ✅ 여러 개 spot 선택 (예: 4개)
+        // ✅ 여러 개 spot 선택 (예: 3개)
         List<TourSpot> spots = pickItinerarySpots(request, 3);
 
         // 프롬프트 생성
         String prompt = buildItineraryPrompt(request, spots);
-        String raw = OpenAiClient.generate(prompt);
+        String raw = openAiClient.generate(prompt);
 
         // "title|||description" 파싱은 기존 로직 그대로 사용
         String title = "추천 일정";
