@@ -24,7 +24,7 @@ public class RecommendQueryService {
     private final OpenAiClient OpenAiClient;  // 🔥 이걸로 교체
     private final TourSpotRepository tourSpotRepository;
 
-    public RecommendationResponseDTO recommendForUser(Long userId) {
+    public RecommendationResponseDTO recommendScheduleForUser(Long userId) {
 
         // 1️⃣ 유저 정보 조회
         Users user = userRepository.findById(userId)
@@ -36,30 +36,29 @@ public class RecommendQueryService {
         // 3️⃣ 현재 계절 계산
         String currentSeason = SeasonUtil.getCurrentSeason(); // "봄", "여름", "가을", "겨울"
 
-        // 3️⃣ 직전에 추천된 지역 조회 (없을 수도 있으니 Optional)
+        // 4️⃣ 직전에 추천된 지역 조회
         String lastRegion = recommendRepository
                 .findTopByUserUserIdOrderByRecommendAtDesc(userId)
                 .map(Recommend::getRecommendSpot)
                 .orElse(null);
 
-        // 4️⃣ 프롬프트용 요청 DTO 만들기
+        // 5️⃣ 프롬프트용 요청 DTO
         RecommendationPreferenceRequestDTO request = new RecommendationPreferenceRequestDTO();
         request.setAge(age);
         request.setGender(convertGender(user.getGender()));
         request.setPreferredSeason(String.valueOf(user.getPreferredSeason()));
         request.setPreferredCategory(String.valueOf(user.getPreferredCategory()));
         request.setCurrentSeason(currentSeason);
-        request.setLastRegion(lastRegion);
 
-        // 데이터 기반으로 spot 1개 선택
-        TourSpot spot = pickBestSpot(request);
+        // ✅ 여러 개 spot 선택 (예: 4개)
+        List<TourSpot> spots = pickItinerarySpots(request, 3);
 
-        //프롬프트 생성
-        String prompt = buildPrompt(request, spot);
+        // 프롬프트 생성
+        String prompt = buildItineraryPrompt(request, spots);
         String raw = OpenAiClient.generate(prompt);
 
-        // 4️⃣ "title|||description" 파싱
-        String title = "추천 제목";
+        // "title|||description" 파싱은 기존 로직 그대로 사용
+        String title = "추천 일정";
         String description = raw;
         String targetLine = null;
 
@@ -76,14 +75,19 @@ public class RecommendQueryService {
                 description = parts[1].trim();
             }
         }
+
+        // 응답 DTO 구성
         RecommendationResponseDTO response = new RecommendationResponseDTO();
-        response.setRegion(spot.getName());
+        // 기존에는 spot.getName()을 region에 넣었는데,
+        // 일정의 기준이 되는 도시(region)를 넣는 게 더 자연스러워 보임
+        response.setRegion(spots.get(0).getRegion());   // 예: "부산광역시"
+        response.setRegionId(spots.get(0).getId());     // anchor spot id 하나만 넣어둬도 됨
         response.setTitle(title);
         response.setDescription(description);
-        response.setRegionId(spot.getId());
+
+        // 필요하다면 일정에 포함된 spot 리스트도 DTO에 추가하는 걸 추천
         return response;
     }
-
 
     private String convertGender(Users.Gender gender) {
         return switch (gender) {
@@ -92,20 +96,35 @@ public class RecommendQueryService {
             case U -> "미지정";
         };
     }
-    private TourSpot pickBestSpot(RecommendationPreferenceRequestDTO pref) {
+    private List<TourSpot> pickItinerarySpots(RecommendationPreferenceRequestDTO pref, int maxCount) {
         List<TourSpot> all = tourSpotRepository.findAll();
 
-        String lastRegion = pref.getLastRegion();
-
-        return all.stream()
-                // 1) 직전 추천 지역은 제외
-                .filter(spot -> lastRegion == null || !spot.getName().equals(lastRegion))
-                // 2) 점수 높은 순으로 정렬
+        // 1) 점수 순으로 정렬
+        List<TourSpot> sorted = all.stream()
                 .sorted(Comparator.comparingInt((TourSpot s) -> scoreByRule(s, pref)).reversed())
-                // 3) 맨 위 하나만 선택
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("추천 가능한 관광지가 없습니다."));
+                .toList();
+
+        if (sorted.isEmpty()) {
+            throw new IllegalStateException("추천 가능한 관광지가 없습니다.");
+        }
+
+        // 2) 첫 번째 스팟의 region(시/도)을 anchor로 사용
+        TourSpot anchor = sorted.get(0);
+        String anchorRegion = anchor.getRegion(); // 예: "부산광역시"
+
+        // 3) 같은 region인 것만 골라서 maxCount개까지 일정에 포함
+        List<TourSpot> sameRegion = sorted.stream()
+                .filter(s -> anchorRegion.equals(s.getRegion()))
+                .limit(maxCount)
+                .toList();
+
+        if (sameRegion.isEmpty()) {
+            throw new IllegalStateException("같은 지역으로 묶을 수 있는 관광지가 없습니다.");
+        }
+
+        return sameRegion;
     }
+
 
     private int scoreByRule(TourSpot spot, RecommendationPreferenceRequestDTO pref) {
         int score = 0;
@@ -129,32 +148,33 @@ public class RecommendQueryService {
         }
         int age = pref.getAge();
         String cat = spot.getCategory(); // 자연, 체험, 역사, 문화 등
-        // 20-30대: 체험/자연 ↑
+
+        // 20-30대: 체험/자연/문화ㅣ ↑
         if (age < 40) {
-            if ("체험".equals(cat) || "자연".equals(cat)) {
+            if ("체험".equals(cat) || "자연".equals(cat) || "문화".equals(cat)) {
                 score += 15;   // 약간의 보정
             }
         }
 
-        // 40대 이상: 문화/역사 ↑
+        // 40대 이상: 문화/역사/자연 ↑
         if (age >= 40) {
-            if ("문화".equals(cat) || "역사".equals(cat)) {
+            if ("문화".equals(cat) || "역사".equals(cat) || "자연".equals(cat)) {
                 score += 15;
             }
         }
 
-
         return score;
     }
-    private String buildPrompt(RecommendationPreferenceRequestDTO req, TourSpot spot) {
+
+    private String buildItineraryPrompt(RecommendationPreferenceRequestDTO req, List<TourSpot> spots) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("시스템 역할: 당신은 한국 여행 ‘감성 큐레이터’입니다. ")
-                .append("사용자의 취향과 지금 계절, 그리고 이미 선택된 여행지를 바탕으로,\n")
-                .append("너라면 이런 분위기를 좋아할 것 같아 라는 느낌으로 감성적이고 설득력 있는 설명을 제공합니다.\n\n")
+        sb.append("시스템 역할: 당신은 한국 여행 1일 코스를 설계하는 여행 일정 플래너입니다.\n")
+                .append("사용자의 취향과 지금 계절, 그리고 아래에 주어진 여러 여행지를 바탕으로,\n")
+                .append("하루짜리 여행 일정을 짜고, 여행 전/후 체크포인트와 위험 요소 코멘트까지 함께 제공합니다.\n\n")
 
                 .append("[중요 규칙]\n")
-                .append("- 이미 추천할 장소는 정해져 있습니다. 장소를 바꾸지 말고, 아래 장소만 설명하세요.\n")
+                .append("- 주어진 여행지들만 사용해서 일정을 구성하세요. 새로운 장소를 추가하지 마세요.\n")
                 .append("- 모든 출력은 반드시 한국어로 작성하세요.\n")
                 .append("- 출력 형식을 반드시 지키세요.\n\n");
 
@@ -165,36 +185,46 @@ public class RecommendQueryService {
                 .append("- 현재 계절: ").append(req.getCurrentSeason()).append("\n")
                 .append("- 선호 카테고리: ").append(req.getPreferredCategory()).append("\n");
 
-        if (req.getLastRegion() != null) {
-            sb.append("- 직전 추천 지역: ").append(req.getLastRegion()).append("\n");
+        sb.append("\n[선택된 여행지 목록]\n");
+        for (int i = 0; i < spots.size(); i++) {
+            TourSpot s = spots.get(i);
+            sb.append(i + 1).append(". 이름: ").append(s.getName()).append("\n")
+                    .append("   - 카테고리: ").append(s.getCategory()).append("\n")
+                    .append("   - 대표 계절: ").append(String.join(",", s.getSeasons())).append("\n")
+                    .append("   - 지역: ").append(s.getRegion()).append("\n")
+                    .append("   - 설명: ").append(s.getDescription()).append("\n\n");
         }
 
-        sb.append("\n[선택된 여행지]\n")
-                .append("- 이름: ").append(spot.getName()).append("\n")
-                .append("- 카테고리: ").append(spot.getCategory()).append("\n")
-                .append("- 대표 계절: ").append(String.join(",", spot.getSeasons())).append("\n")
-                .append("- 지역: ").append(spot.getRegion()).append("\n")
-                .append("- 설명: ").append(spot.getDescription()).append("\n\n");
-
         sb.append("""
-            [요구사항]
-            1) 위 사용자와 여행지 정보를 바탕으로, 이 여행지가 지금 이 사용자에게 잘 맞는 이유를 3~5문장으로 써주세요.
-            2) '너라면 이런 분위기를 좋아할 것 같다'는 느낌으로, 과장 없이 담백하게 설명하세요.
-            3) 오전/오후/저녁 일정표는 쓰지 말고, 분위기와 경험 위주로 작성하세요.
+        [요구사항]
+        1) 위 여행지들을 모두 포함해서 1일 여행 일정을 설계해 주세요.
+        2) 오전 - 오후 - 저녁 순서로 어떤 장소를 방문하면 좋을지, 각 시간대의 활동을 간단히 요약해 주세요.
+        3) 여행 전 체크포인트(준비물, 교통, 시간 관련)는 2~4개의 핵심 포인트로 요약해 주세요.
+        4) 위험 요소/주의사항은 계절과 지역 특성을 고려해서 2~3개 정도로 요약해 주세요.
+        5) 여행 후 체크포인트(사진 정리, 후기, 다음 방문 참고점 등)는 2~3개 정도로 요약해 주세요.
+        6) description은 한 줄 안에 다음 내용을 순서대로 자연스럽게 이어서 작성하세요:
+           - '일정 요약: ...'
+           - '여행 전 체크포인트: ...'
+           - '위험 요소: ...'
+           - '여행 후 체크포인트: ...'
+           예: '일정 요약: 오전 - OO / 오후 - OO / 저녁 - OO. 여행 전 체크포인트: OO, OO. 위험 요소: OO, OO. 여행 후 체크포인트: OO, OO.'
+        7) description에는 줄바꿈(개행)을 넣지 말고, 하나의 문장 블록으로만 작성하세요.
 
-            [출력 형식]
-            title|||description
+        [출력 형식]
+        title|||description
 
-            - title: 한 줄 제목 (예: "조용한 강변 산책이 어울리는 봄날")
-            - description: 추천 이유/설명 (3~5문장, 줄바꿈 없이 한 줄로, 한국어로 작성)
+        - title: 한 줄 제목 (예: "부산 바다 감성 하루 코스")
+        - description: 위 요구사항 6번을 모두 포함하는 한 줄짜리 한국어 문장
 
-            형식을 반드시 지키세요.
-            다른 텍스트, 설명, 따옴표, JSON, 마크다운, 줄바꿈은 절대 출력하지 마세요.
-            """);
+        [출력 예시]
+        부산 바다 감성 하루 코스|||일정 요약: 오전 - 해운대 산책과 브런치 / 오후 - 광안리 해변 산책과 카페 / 저녁 - 더베이101 야경 감상. 여행 전 체크포인트: 바닷바람을 대비해 겉옷을 챙기고, 대중교통 시간을 미리 확인한다. 위험 요소: 야간에는 해변 인근 도로가 미끄러울 수 있어 편한 운동화를 신는다. 여행 후 체크포인트: 사진을 바로 백업하고, 마음에 드는 장소를 메모해 둔다.
+
+        형식을 반드시 지키세요.
+        다른 텍스트, 설명, JSON, 마크다운, 여분의 줄바꿈은 절대 출력하지 마세요.
+        """);
 
         return sb.toString();
     }
-
 
 
 }
