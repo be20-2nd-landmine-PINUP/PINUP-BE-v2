@@ -40,10 +40,10 @@ class DecoControllerIntegrationTest {
     private DecoHandleRepository decoHandleRepository;
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "deco@example.com")
     @DisplayName("시도별 인벤토리 페이지 조회 - 성공")
     void getSidoInventoryPage_returnsItems() throws Exception {
-        mockMvc.perform(get("/decorate/{userId}/regions/{sidoName}/items", 101L, "서울특별시")
+        mockMvc.perform(get("/decorate/regions/{sidoName}/items", "서울특별시")
                         .param("page", "0")
                         .param("size", "10"))
                 .andDo(print())
@@ -55,12 +55,12 @@ class DecoControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "deco@example.com")
     @DisplayName("아이템 장착 API - 좌표 저장 및 상태 변경")
     void equipItem_updatesInventory() throws Exception {
         Map<String, Double> payload = Map.of("x", 128.12, "y", 37.51);
 
-        mockMvc.perform(patch("/decorate/{userId}/{itemId}/add", 101L, 401)
+        mockMvc.perform(patch("/decorate/{itemId}/add", 401)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(payload)))
@@ -79,10 +79,10 @@ class DecoControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "deco@example.com")
     @DisplayName("아이템 해제 API - 좌표 제거 및 상태 해제")
     void removeItem_updatesInventory() throws Exception {
-        mockMvc.perform(patch("/decorate/{userId}/{itemId}/delete", 101L, 402)
+        mockMvc.perform(patch("/decorate/{itemId}/delete", 402)
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
