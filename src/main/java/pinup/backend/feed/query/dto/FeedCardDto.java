@@ -23,7 +23,10 @@ public record FeedCardDto(
         String authorName,
 
         @Schema(description = "등록일시", example = "2025-11-05T14:23:00")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        @Schema(description = "좋아요 수", example = "3")
+        Integer likeCount
 ) {
 
 

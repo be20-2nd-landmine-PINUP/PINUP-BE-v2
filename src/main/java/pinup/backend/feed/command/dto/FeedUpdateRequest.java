@@ -3,8 +3,10 @@ package pinup.backend.feed.command.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+@Setter
 @Getter
 @NoArgsConstructor
 @Schema(description = "피드 수정 요청 DTO")

@@ -32,7 +32,8 @@
         f.image_url                       AS imageUrl,
         f.thumbnail_url                   AS thumbnailUrl,
         COALESCE(u.nickname, u.user_name) AS authorName,
-        f.created_at                      AS createdAt
+        f.created_at                      AS createdAt,
+        f.like_count                      AS likeCount
     </sql>
 
     <!-- 상세용 -->
