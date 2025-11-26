@@ -12,4 +12,6 @@ public interface NoticeMapper {
     List<NoticeListResponse> getNoticeList();
 
     NoticeSpecificResponse getNoticeSpecific(@Param("noticeId") Long id);
+
+    List<NoticeListResponse> getLatestNotices();
 }
