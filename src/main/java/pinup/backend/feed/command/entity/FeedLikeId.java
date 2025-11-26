@@ -1,14 +1,17 @@
 package pinup.backend.feed.command.entity;
 
 import jakarta.persistence.Embeddable;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@Getter
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Embeddable
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode
 public class FeedLikeId implements Serializable {
     private Long userId;

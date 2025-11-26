@@ -19,25 +19,25 @@ public class FeedLike {
     @EmbeddedId
     private FeedLikeId feedLikeId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
-    private Users userId;
+    private Users user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @MapsId("feedId")
     @JoinColumn(name = "feed_id", nullable = false)
-    private Feed feedId;
+    private Feed feed;
 
     @CreationTimestamp      //생성 시 자동 기입 예정
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Builder
-    public FeedLike(FeedLikeId feedLikeId, Users userId, Feed feedId, LocalDateTime createdAt) {
+    public FeedLike(FeedLikeId feedLikeId, Users user, Feed feed, LocalDateTime createdAt) {
         this.feedLikeId = feedLikeId;
-        this.userId = userId;
-        this.feedId = feedId;
+        this.user = user;
+        this.feed = feed;
         this.createdAt = createdAt;
     }
 }

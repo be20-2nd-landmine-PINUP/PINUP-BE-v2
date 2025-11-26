@@ -31,10 +31,12 @@
                 @Parameter(description = "가져올 줄 수(한 줄 = 4개)", example = "1")
                 @RequestParam(defaultValue = "1") @Min(1) int rows,
                 @Parameter(description = "다음 페이지 커서 (첫 요청이면 생략)", example = "42")
-                @RequestParam(required = false) String cursor
+                @RequestParam(required = false) String cursor,
+                @Parameter(description = "검색할 작성자 고유id", example = "1")
+                @RequestParam(required = false) Long authorId
         ) {
             int limit = Math.max(1, rows) * 4;
-            SliceResponse<FeedCardDto> result = feedQueryService.getFeedSlice(limit, cursor);
+            SliceResponse<FeedCardDto> result = feedQueryService.getFeedSlice(limit, cursor, authorId);
             return ApiResponse.success(result, "피드 목록 조회 성공");
         }
 
