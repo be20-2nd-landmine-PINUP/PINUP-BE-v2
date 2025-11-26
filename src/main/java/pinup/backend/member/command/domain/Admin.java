@@ -35,6 +35,12 @@ public class Admin {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    public static Admin of(Long id) {
+        Admin a = new Admin();
+        a.setId(id);
+        return a;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

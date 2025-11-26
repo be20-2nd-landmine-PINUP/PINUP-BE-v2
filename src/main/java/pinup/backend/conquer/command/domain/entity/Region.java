@@ -28,4 +28,10 @@ public class Region {
 
     @Column(name = "geom", columnDefinition = "GEOMETRY", nullable = false)
     private Geometry geom;
+
+    public static Region of(Long id) {
+        Region r = new Region();
+        r.regionId = id;   // 직접 필드에 넣어야 함
+        return r;
+    }
 }
