@@ -1,5 +1,6 @@
 package pinup.backend.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -38,9 +39,11 @@ public class SecurityConfig{
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**", "/login", "/css/**", "/js/**", "/images/**", "/api/notifications/stream", "/admin/**")
+                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/api/notifications/stream")
                         .permitAll()
-                        /*.anyRequest().authenticated()*/
+                        .requestMatchers("/admin/login", "/admin/logout").permitAll()
+                        .requestMatchers("/admin/**").authenticated()
+                        .anyRequest().authenticated()
                 )
                 // 사용자: OAuth2 로그인
                 .oauth2Login(oauth2 -> oauth2
@@ -52,17 +55,28 @@ public class SecurityConfig{
                 .formLogin(form -> form
                         .loginPage("/admin/login")
                         .loginProcessingUrl("/admin/login")
-                        .defaultSuccessUrl("/admin/dashboard", true)
-                        .failureUrl("/admin/login?error=true")
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                        .successHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"success\": true}");
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"success\": false}");
+                        })
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("http://localhost:5173/login")
+                        .logoutUrl("/logout")   // 사용자 로그아웃
+                        .logoutSuccessUrl("http://localhost:5173/login") // Vue 로그인 페이지
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
                 );
+
         return http.build();
     }
 
@@ -86,9 +100,9 @@ public class SecurityConfig{
     }
 
     /*
-    * sse 연결 수립 테스트를 위해 임시로 /sse/** 경로는 filterchain을 우회하도록 설정함
-    * 추후 삭제 예정
-    */
+     * sse 연결 수립 테스트를 위해 임시로 /sse/** 경로는 filterchain을 우회하도록 설정함
+     * 추후 삭제 예정
+     */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers("/sse/**");
