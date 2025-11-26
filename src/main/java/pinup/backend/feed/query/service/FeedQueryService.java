@@ -21,7 +21,7 @@ public class FeedQueryService {
 
     private final FeedQueryMapper feedQueryMapper;
 
-    public SliceResponse<FeedCardDto> getFeedSlice(int limit, String cursor) {
+    public SliceResponse<FeedCardDto> getFeedSlice(int limit, String cursor,Long authorId) {
         // 커서 파싱 (첫 요청이면 null)
         Long cursorId = (cursor == null || cursor.isBlank()) ? null : Long.parseLong(cursor);
 
@@ -29,6 +29,7 @@ public class FeedQueryService {
         Map<String, Object> params = new HashMap<>();
         params.put("cursorId", cursorId);
         params.put("limitPlusOne", limit + 1);
+        params.put("authorId", authorId);
 
         // 조회
         List<FeedCardDto> rows = feedQueryMapper.selectFeedSlice(params);
