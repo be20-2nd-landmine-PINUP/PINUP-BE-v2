@@ -25,6 +25,17 @@ public class RecommendQueryService {
     @Value("${openai.enabled:true}")   // 💡 기본값은 true로
     private boolean openAiEnabled;
 
+    // 🔹 디버그용 취향 만들기 (userId랑 무관)
+    private RecommendationPreferenceRequestDTO buildDebugPref() {
+        RecommendationPreferenceRequestDTO pref = new RecommendationPreferenceRequestDTO();
+        pref.setAge(27);
+        pref.setGender("남성");
+        pref.setPreferredSeason("봄");
+        pref.setPreferredCategory("자연");
+        pref.setCurrentSeason("봄");
+        return pref;
+    }
+
     // gpt를 끄고 연결할 때 사용하는 매서드(하드코딩 되어있음)
     // public RecommendationResponseDTO recommendScheduleForUser(Long userId)에서 연결된 경우
     // 1. 유저정보 조회부터 시작된다.
@@ -71,18 +82,10 @@ public class RecommendQueryService {
 
         // 0단계: GPT 비활성화면 디버그(pref) 경로로 바로 우회
         if (!openAiEnabled) {
-            // 여기는 "디버그용 하드코딩 취향" 넣는 부분 (원래 DebugController에서 하던 것)
-            RecommendationPreferenceRequestDTO debugPref =
-                    new RecommendationPreferenceRequestDTO(
-                            27,          // age
-                            "남성",      // gender
-                            "봄",        // preferredSeason
-                            "자연",      // preferredCategory
-                            "겨울"         // currentSeason
-                    );
-
+            RecommendationPreferenceRequestDTO debugPref = buildDebugPref();
             return recommendScheduleForPreference(debugPref);
         }
+        // gpt 활성화면 -> 기존 유저 기반 로직 그대로
 
         // 1️⃣ 유저 정보 조회
         Users user = userRepository.findById(userId)
