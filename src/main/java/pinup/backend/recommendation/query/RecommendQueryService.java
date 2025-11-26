@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pinup.backend.member.command.domain.Users;
 import pinup.backend.member.command.repository.UserRepository;
-import pinup.backend.recommendation.domain.RecommendRepository;
 import pinup.backend.recommendation.domain.TourSpotRepository;
 import pinup.backend.recommendation.infra.llm.OpenAiClient;
-import pinup.backend.recommendation.domain.Recommend;
 import pinup.backend.recommendation.util.SeasonUtil;
 
 import java.time.LocalDate;
@@ -22,7 +20,8 @@ public class RecommendQueryService {
     private final UserRepository userRepository;
     private final OpenAiClient openAiClient;  // 🔥 이걸로 교체
     private final TourSpotRepository tourSpotRepository;
-
+    @Value("${openai.enabled:true}")   // 💡 기본값은 true로
+    private boolean openAiEnabled;
     // test 용
     // ⚡ 디버그용: 유저 DB 말고, DTO로 직접 취향을 넣어서 테스트
     public RecommendationResponseDTO recommendScheduleForPreference(RecommendationPreferenceRequestDTO request) {

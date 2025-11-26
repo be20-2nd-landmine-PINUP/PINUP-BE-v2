@@ -21,6 +21,9 @@ public class OpenAiClient {
     @Value("${openai.api.key}")
     private String apiKey;   // application.yml / 환경변수에서 주입
 
+    @Value("${openai.enabled:false}")   // 🔥 yml에서 스위치 읽어오기
+    private boolean enabled;
+
     private final WebClient webClient = WebClient.builder()
             .baseUrl("https://api.openai.com/v1")
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
