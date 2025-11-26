@@ -58,7 +58,6 @@ public class RecommendQueryService {
         // 5) 응답 DTO 구성
         RecommendationResponseDTO response = new RecommendationResponseDTO();
         response.setRegion(spots.get(0).getRegion());
-        response.setRegionId(spots.get(0).getId());
         response.setTitle(title);
         response.setDescription(description);
 
@@ -117,7 +116,6 @@ public class RecommendQueryService {
         // 기존에는 spot.getName()을 region에 넣었는데,
         // 일정의 기준이 되는 도시(region)를 넣는 게 더 자연스러워 보임
         response.setRegion(spots.get(0).getRegion());   // 예: "부산광역시"
-        response.setRegionId(spots.get(0).getId());     // anchor spot id 하나만 넣어둬도 됨
         response.setTitle(title);
         response.setDescription(description);
 
