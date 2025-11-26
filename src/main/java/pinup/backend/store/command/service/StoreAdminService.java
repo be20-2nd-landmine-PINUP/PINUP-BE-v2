@@ -5,13 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pinup.backend.conquer.command.domain.entity.Region;
 import pinup.backend.member.command.domain.Admin;
-import pinup.backend.member.command.repository.AdminRepository;
 import pinup.backend.store.command.domain.Store;
 import pinup.backend.store.command.dto.StoreRequestDto;
-import pinup.backend.store.command.repository.RegionRepository;
+import pinup.backend.store.command.dto.StoreUpdateDto;
 import pinup.backend.store.command.repository.StoreRepository;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -19,56 +16,38 @@ import java.time.LocalDateTime;
 public class StoreAdminService {
 
     private final StoreRepository storeRepository;
-    private final AdminRepository adminRepository;
-    private final RegionRepository regionRepository;
 
-    // 아이템 등록 (관리자 전용)
-    public Store registerItem(Long adminId, StoreRequestDto dto) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new IllegalArgumentException("관리자를 찾을 수 없습니다."));
+    // 🔥 등록 (기존 DTO)
+    public Store registerItem(StoreRequestDto dto) {
 
-        Region region = resolveRegion(dto.getRegionId());
-
-        LocalDateTime createdAt = dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now();
-
-        Store store = Store.builder()
-                .admin(admin)
-                .region(region)
+        Store item = Store.builder()
+                .admin(Admin.of(dto.getAdminId()))
+                .region(dto.getRegionId() != null ? Region.of(dto.getRegionId()) : null)
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
                 .category(dto.getCategory())
                 .limitType(dto.getLimitType())
                 .imageUrl(dto.getImageUrl())
-                .createdAt(createdAt)
                 .isActive(true)
                 .build();
 
-        return storeRepository.save(store);
+        return storeRepository.save(item);
     }
 
-    // 아이템 수정 (관리자 전용)
-    public Store updateItem(Integer itemId, StoreRequestDto dto) {
-        Store store = storeRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("아이템을 찾을 수 없습니다."));
+    // 🔥 PATCH 수정 (신규 DTO 사용)
+    public Store updateItem(Integer itemId, StoreUpdateDto dto) {
 
-        Region region = resolveRegion(dto.getRegionId());
-        return storeRepository.save(store);
+        Store item = storeRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("아이템 없음"));
+
+        item.patch(dto);
+
+        return item;
     }
 
-    //아이템 삭제 ( 관리자 전용)
+    // 삭제
     public void deleteItem(Integer itemId) {
-        Store store = storeRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("아이템을 찾을 수 없습니다."));
-        storeRepository.delete(store);
+        storeRepository.deleteById(itemId);
     }
-
-    private Region resolveRegion(Long regionId) {
-        if (regionId == null) {
-            return null;
-        }
-        return regionRepository.findById(regionId)
-                .orElseThrow(() -> new IllegalArgumentException("행정구역을 찾을 수 없습니다."));
-    }
-
 }
