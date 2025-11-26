@@ -63,4 +63,9 @@ public class Notice {
         this.noticeTitle = request.getNoticeTitle() == null ? this.noticeTitle : request.getNoticeTitle();
         this.noticeContent = request.getNoticeContent() == null ? this.noticeContent : request.getNoticeContent();
     }
+
+    public Long patchAuthor(Admin admin) {
+        this.admin = admin;
+        return this.admin.getId();
+    }
 }

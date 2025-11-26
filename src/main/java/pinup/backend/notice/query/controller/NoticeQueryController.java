@@ -28,4 +28,9 @@ public class NoticeQueryController {
     public ResponseEntity<NoticeSpecificResponse> getSpecificNotice(@PathVariable Long id) {
         return ResponseEntity.ok(noticeQueryService.getNoticeById(id));
     }
+
+    @GetMapping("/latest")
+    public List<NoticeListResponse> getLatestNotices() {
+        return noticeQueryService.getLatestNotices();
+    }
 }

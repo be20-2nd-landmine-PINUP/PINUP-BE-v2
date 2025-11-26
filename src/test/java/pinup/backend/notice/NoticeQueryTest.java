@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.transaction.annotation.Transactional;
 import pinup.backend.member.command.domain.Admin;
 import pinup.backend.member.command.repository.AdminRepository;
@@ -75,11 +76,11 @@ public class NoticeQueryTest {
     @DisplayName("공지사항이 등록된다")
     void postNoticeTest() {
         NoticePostRequest request = NoticePostRequest.builder()
-                .adminId(1L)
                 .noticeTitle("Test Title 3")
                 .noticeContent("Test Content 3")
                 .build();
-        Long id = noticeCommandService.postNotice(request);
+
+        Long id = noticeCommandService.postNotice(request, null);
 
         assertThat(noticeRepository.findById(id).get().getNoticeTitle()).isEqualTo("Test Title 3");
     }

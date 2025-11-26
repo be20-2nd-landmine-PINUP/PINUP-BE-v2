@@ -10,7 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class NoticePostRequest {
-    private Long adminId;
     private String noticeTitle;
     private String noticeContent;
 }

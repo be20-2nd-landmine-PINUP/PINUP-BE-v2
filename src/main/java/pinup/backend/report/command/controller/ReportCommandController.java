@@ -1,6 +1,7 @@
 package pinup.backend.report.command.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pinup.backend.report.command.dto.request.ReportHandleRequest;
 import pinup.backend.report.command.dto.request.ReportRequest;
@@ -18,6 +19,7 @@ public class ReportCommandController {
     }
 
     @PatchMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public void handleReport(@RequestBody ReportHandleRequest reportHandleRequest) {
         reportCommandService.handleReport(reportHandleRequest);
     }

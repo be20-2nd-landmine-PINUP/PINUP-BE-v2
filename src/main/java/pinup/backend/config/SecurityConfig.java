@@ -39,7 +39,7 @@ public class SecurityConfig{
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/api/notifications/stream")
+                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/api/notifications/stream", "/api/notices/**")
                         .permitAll()
                         .requestMatchers("/admin/login", "/admin/logout").permitAll()
                         .requestMatchers("/admin/**").authenticated()
@@ -98,14 +98,4 @@ public class SecurityConfig{
             }
         };
     }
-
-    /*
-    * sse 연결 수립 테스트를 위해 임시로 /sse/** 경로는 filterchain을 우회하도록 설정함
-    * 추후 삭제 예정
-    */
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/sse/**");
-    }
-
 }

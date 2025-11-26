@@ -16,6 +16,9 @@ public record FeedCardDto(
         @Schema(description = "대표 이미지 URL (null 허용)", example = "https://backend.pinup/feed/{아직경로미정...}/image.jpg")
         String imageUrl,
 
+        @Schema(description = "썸네일 이미지 URL (null 허용)", example = "https://backend.pinup/feed/{아직경로미정...}/image_s.jpg")
+        String thumbnailUrl,
+
         @Schema(description = "작성자 이름", example = "예제 이름")
         String authorName,
 

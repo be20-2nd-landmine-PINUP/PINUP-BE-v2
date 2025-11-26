@@ -1,8 +1,10 @@
 package pinup.backend.report.command.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import pinup.backend.feed.command.entity.Feed;
 import pinup.backend.feed.command.repository.FeedRepository;
 import pinup.backend.member.command.domain.Users;
@@ -21,8 +23,12 @@ public class ReportCommandService {
     private final FeedRepository feedRepository;
 
     public void issueReport(ReportRequest reportRequest) {
-        Users user = userRepository.findById(reportRequest.getUserId()).orElseThrow(IllegalStateException::new);
-        Feed feed = feedRepository.findById(reportRequest.getFeedId()).orElseThrow(IllegalStateException::new);
+        Users user = userRepository.findById(reportRequest.getUserId()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+        );
+        Feed feed = feedRepository.findById(reportRequest.getFeedId()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Feed not found")
+        );
 
         reportRepository.save(Report.builder()
                         .user(user)
@@ -33,7 +39,9 @@ public class ReportCommandService {
     }
 
     public void handleReport(ReportHandleRequest reportHandleRequest) {
-        Report report =  reportRepository.findById(reportHandleRequest.getReportId()).orElseThrow(IllegalStateException::new);
+        Report report =  reportRepository.findById(reportHandleRequest.getReportId()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found")
+        );
         report.handleReport(reportHandleRequest);
     }
 }

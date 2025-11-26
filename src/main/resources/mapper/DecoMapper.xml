@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pinup.backend.deco.query.mapper.DecoMapper">
+
+    <sql id="sidoInventoryBase">
+        FROM inventory i
+                 JOIN store s ON s.item_id = i.item_id
+                 JOIN region r ON r.region_id = s.region_id
+        WHERE i.user_id = #{userId}
+          AND r.region_depth1 = #{sidoName}
+    </sql>
+
+    <select id="findAllSidoInventoryItems"
+            resultType="pinup.backend.deco.query.dto.response.InventoryPageResponseDto">
+        SELECT
+            s.name      AS itemName,
+            s.image_url AS imageUrl
+        <include refid="sidoInventoryBase" />
+        ORDER BY i.earned_at DESC, s.item_id DESC
+        LIMIT #{pageable.pageSize}
+        OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countSidoInventoryItems" resultType="long">
+        SELECT COUNT(*)
+        <include refid="sidoInventoryBase" />
+    </select>
+</mapper>

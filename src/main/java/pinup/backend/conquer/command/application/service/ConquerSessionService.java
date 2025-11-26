@@ -1,7 +1,6 @@
 package pinup.backend.conquer.command.application.service;
 
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.misc.LogManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pinup.backend.conquer.command.application.dto.ConquerEndRequest;
@@ -15,7 +14,7 @@ import pinup.backend.conquer.command.domain.entity.TerritoryVisitLog;
 import pinup.backend.conquer.command.domain.repository.ConquerSessionRepository;
 import pinup.backend.conquer.command.domain.repository.TerritoryRepository;
 import pinup.backend.conquer.command.domain.repository.TerritoryVisitLogRepository;
-import pinup.backend.conquer.query.mapper.RegionMapper;
+import pinup.backend.conquer.command.mapper.RegionMapper;
 import pinup.backend.member.command.domain.Users;
 import pinup.backend.member.command.repository.UserRepository;
 import pinup.backend.point.command.service.PointService;
@@ -46,12 +45,7 @@ public class ConquerSessionService {
             throw new RuntimeException("No region found for the given coordinates.");
         }
 
-        ConquerSession session = new ConquerSession();
-        session.setUserId(userId);
-        session.setRegionId(region.getRegionId());
-        session.setStartedAt(Instant.now());
-        session.setStatus(ConquerSession.Status.RUNNING);
-
+        ConquerSession session = ConquerSession.start(userId, region.getRegionId(), Instant.now());
         ConquerSession savedSession = conquerSessionRepository.save(session);
 
         return new ConquerStartResponse(savedSession.getId());
@@ -74,14 +68,13 @@ public class ConquerSessionService {
 
         Region currentRegion = regionMapper.findRegion(request.getLongitude(), request.getLatitude());
         if (currentRegion == null || !currentRegion.getRegionId().equals(session.getRegionId())) {
-            session.setStatus(ConquerSession.Status.CANCELED);
+            session.cancel();
             conquerSessionRepository.save(session);
             return ConquerEndResponse.of("FAILED", "You are not in the same region where you started.");
         }
 
         // Success
-        session.setStatus(ConquerSession.Status.COMPLETED);
-        session.setEndedAt(now);
+        session.complete(now);
         conquerSessionRepository.save(session);
 
         Users user = userRepository.findById(userId)

@@ -1,4 +1,4 @@
-package pinup.backend.conquer.query.mapper;
+package pinup.backend.conquer.command.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
