@@ -35,5 +35,6 @@ public class PointLog {
     private int pointValue;
 
     @Column(nullable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 }

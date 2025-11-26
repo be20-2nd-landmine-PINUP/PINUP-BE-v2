@@ -39,7 +39,7 @@ class RealConquerControllerIntegrationTest {
     private ConquerSessionRepository conquerSessionRepository;
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "test@example.com")
     @DisplayName("Real 정복 종료 API - 성공 (실제 DB 데이터 기반)")
     void RealEndConqueringTest() throws Exception {
         // Given: Start a conquer session
@@ -56,7 +56,7 @@ class RealConquerControllerIntegrationTest {
 
         // Simulate conquest duration (at least 2 hours)
         ConquerSession session = conquerSessionRepository.findById(sessionId).orElseThrow();
-        session.setStartedAt(Instant.now().minus(Duration.ofHours(3))); // Set startedAt 3 hours ago
+        session.adjustStartedAt(Instant.now().minus(Duration.ofHours(3))); // Set startedAt 3 hours ago
         conquerSessionRepository.save(session);
 
         // When & Then: End the conquer session
