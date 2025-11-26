@@ -7,6 +7,7 @@ import pinup.backend.member.command.repository.UserRepository;
 import pinup.backend.recommendation.domain.TourSpotRepository;
 import pinup.backend.recommendation.infra.llm.OpenAiClient;
 import pinup.backend.recommendation.util.SeasonUtil;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -20,10 +21,13 @@ public class RecommendQueryService {
     private final UserRepository userRepository;
     private final OpenAiClient openAiClient;  // 🔥 이걸로 교체
     private final TourSpotRepository tourSpotRepository;
+
     @Value("${openai.enabled:true}")   // 💡 기본값은 true로
     private boolean openAiEnabled;
-    // test 용
-    // ⚡ 디버그용: 유저 DB 말고, DTO로 직접 취향을 넣어서 테스트
+
+    // gpt를 끄고 연결할 때 사용하는 매서드(하드코딩 되어있음)
+    // public RecommendationResponseDTO recommendScheduleForUser(Long userId)에서 연결된 경우
+    // 1. 유저정보 조회부터 시작된다.
     public RecommendationResponseDTO recommendScheduleForPreference(RecommendationPreferenceRequestDTO request) {
 
         // 1) 관광지 선택
@@ -64,6 +68,21 @@ public class RecommendQueryService {
     }
 
     public RecommendationResponseDTO recommendScheduleForUser(Long userId) {
+
+        // 0단계: GPT 비활성화면 디버그(pref) 경로로 바로 우회
+        if (!openAiEnabled) {
+            // 여기는 "디버그용 하드코딩 취향" 넣는 부분 (원래 DebugController에서 하던 것)
+            RecommendationPreferenceRequestDTO debugPref =
+                    new RecommendationPreferenceRequestDTO(
+                            27,          // age
+                            "남성",      // gender
+                            "봄",        // preferredSeason
+                            "자연",      // preferredCategory
+                            "겨울"         // currentSeason
+                    );
+
+            return recommendScheduleForPreference(debugPref);
+        }
 
         // 1️⃣ 유저 정보 조회
         Users user = userRepository.findById(userId)
