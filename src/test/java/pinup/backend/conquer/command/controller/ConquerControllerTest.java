@@ -52,7 +52,12 @@ class ConquerControllerTest {
     void startConquering() throws Exception {
         // Given
         ConquerStartRequest request = new ConquerStartRequest(37.5665, 126.9780);
-        ConquerStartResponse mockResponse = new ConquerStartResponse(1L);
+        ConquerStartResponse mockResponse = new ConquerStartResponse(
+                1L,
+                "서울특별시",
+                "종로구",
+                "청운효자동"
+        );
 
         when(conquerSessionService.startConquering(any(), any(ConquerStartRequest.class))).thenReturn(mockResponse);
 
@@ -63,7 +68,10 @@ class ConquerControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sessionId").value(1L));
+                .andExpect(jsonPath("$.sessionId").value(1L))
+                .andExpect(jsonPath("$.regionDepth1").value("서울특별시"))
+                .andExpect(jsonPath("$.regionDepth2").value("종로구"))
+                .andExpect(jsonPath("$.regionDepth3").value("청운효자동"));
     }
 
     @Test

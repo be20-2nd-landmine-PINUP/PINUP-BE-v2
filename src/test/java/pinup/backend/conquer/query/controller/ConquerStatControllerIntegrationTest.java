@@ -9,9 +9,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -40,5 +42,19 @@ class ConquerStatControllerIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("2"));
+    }
+
+    @Test
+    @WithMockUser(username = "conquer@example.com")
+    @DisplayName("사용자 점령지 목록 조회 - 성공")
+    void loadUserTerritoryList_returnsRegions() throws Exception {
+        mockMvc.perform(get("/conquer/stats/api/conquer/my-regions"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].regionName").value("서울특별시 성북구"))
+                .andExpect(jsonPath("$[0].regionDepth1").value("서울특별시"))
+                .andExpect(jsonPath("$[0].regionDepth2").value("성북구"))
+                .andExpect(jsonPath("$[0].regionDepth3").value("성북1동"));
     }
 }
