@@ -23,6 +23,48 @@ public class RecommendQueryService {
     private final OpenAiClient openAiClient;  // 🔥 이걸로 교체
     private final TourSpotRepository tourSpotRepository;
 
+    // test 용
+    // ⚡ 디버그용: 유저 DB 말고, DTO로 직접 취향을 넣어서 테스트
+    public RecommendationResponseDTO recommendScheduleForPreference(RecommendationPreferenceRequestDTO request) {
+
+        // 1) 관광지 선택
+        List<TourSpot> spots = pickItinerarySpots(request, 3);
+
+        // 2) 프롬프트 생성
+        String prompt = buildItineraryPrompt(request, spots);
+
+        // 3) 🔥 OpenAI 호출 (=> 여기서 연결/키/모델 다 테스트됨)
+        String raw = openAiClient.generate(prompt);
+
+        // 4) title|||description 파싱
+        String title = "추천 일정";
+        String description = raw;
+        String targetLine = null;
+
+        for (String line : raw.split("\\R")) {
+            if (line.contains("|||")) {
+                targetLine = line.trim();
+                break;
+            }
+        }
+        if (targetLine != null) {
+            String[] parts = targetLine.split("\\|\\|\\|");
+            if (parts.length >= 2) {
+                title = parts[0].trim();
+                description = parts[1].trim();
+            }
+        }
+
+        // 5) 응답 DTO 구성
+        RecommendationResponseDTO response = new RecommendationResponseDTO();
+        response.setRegion(spots.get(0).getRegion());
+        response.setRegionId(spots.get(0).getId());
+        response.setTitle(title);
+        response.setDescription(description);
+
+        return response;
+    }
+
     public RecommendationResponseDTO recommendScheduleForUser(Long userId) {
 
         // 1️⃣ 유저 정보 조회
