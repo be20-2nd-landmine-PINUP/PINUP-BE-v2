@@ -17,10 +17,12 @@ public class HomeController {
     private final MemberQueryService memberQueryService;
 
     // "/" 접근 시 홈으로 리다이렉트
+/*
     @GetMapping("/")
     public String redirectToHome() {
         return "redirect:/home";
     }
+*/
 
     @GetMapping("/home")
     public String home(@AuthenticationPrincipal OAuth2User oAuth2User, Model model) {

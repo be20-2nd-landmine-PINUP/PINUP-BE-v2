@@ -11,6 +11,9 @@ public record FeedQueryDto(
         @Schema(description = "피드 ID", example = "619")
         Long id,
 
+        @Schema(description = "작성자 ID", example = "1")
+        Long authorId,
+
         @Schema(description = "작성자 닉네임", example = "waifuser")
         String authorName,
 
@@ -25,6 +28,9 @@ public record FeedQueryDto(
 
         @Schema(description = "피드 이미지 URL", example = "https://backend.pinup/feed/{아직경로미정...}/image.jpg")
         String imageUrl,
+
+        @Schema(description = "피드 썸네일 URL", example = "https://backend.pinup/feed/{아직경로미정...}/image_s.jpg")
+        String thumbnailUrl,
 
         @Schema(description = "좋아요 수", example = "42")
         int likeCount,

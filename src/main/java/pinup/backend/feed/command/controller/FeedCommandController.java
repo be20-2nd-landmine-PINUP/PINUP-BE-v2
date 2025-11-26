@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import pinup.backend.feed.command.dto.FeedCreateRequest;
 import pinup.backend.feed.command.dto.FeedUpdateRequest;
@@ -20,8 +21,8 @@ public class FeedCommandController {
     private final FeedCommandService feedCommandService;
 
     @Operation(summary = "피드 작성", description = "새로운 피드를 작성합니다.")
-    @PostMapping("/write")
-    public ResponseEntity<ApiResponse<Long>> createFeed(@RequestBody FeedCreateRequest request) {
+    @PostMapping(value = "/write", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Long>> createFeed(@ModelAttribute FeedCreateRequest request) {
         Long feedId = feedCommandService.createFeed(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -29,10 +30,10 @@ public class FeedCommandController {
     }
 
     @Operation(summary = "피드 수정", description = "기존 피드를 수정합니다.")
-    @PutMapping("/modify/{feedId}")
+    @PutMapping(value = "/modify/{feedId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Void>> updateFeed(
             @PathVariable Long feedId,
-            @RequestBody FeedUpdateRequest request) {
+            @ModelAttribute FeedUpdateRequest request) {
         feedCommandService.updateFeed(feedId, request);
         return ResponseEntity
                 .ok(ApiResponse.success("피드 수정 성공"));
