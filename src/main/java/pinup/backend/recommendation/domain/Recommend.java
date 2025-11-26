@@ -27,8 +27,8 @@ public class Recommend {
     private String recommendSpot;
 
     // ✅ 추천된 지역(또는 앵커 스팟)의 ID
-    @Column(name = "region_id")
-    private Long regionId;
+    //@Column(name = "region_id")
+    //private Long regionId;
 
     @Column(name = "reason", columnDefinition = "TEXT", nullable = false)
     private String reason;

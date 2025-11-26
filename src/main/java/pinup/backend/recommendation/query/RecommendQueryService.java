@@ -138,7 +138,7 @@ public class RecommendQueryService {
         RecommendationResponseDTO response = new RecommendationResponseDTO();
         // ✅ 여기서 region / regionId 세팅
         response.setRegion(anchor.getRegion()); // 예: "부산광역시"
-        response.setRegionId(anchor.getId());
+        //response.setRegionId(anchor.getId());
         response.setTitle(title);
         response.setDescription(description);
         return response;

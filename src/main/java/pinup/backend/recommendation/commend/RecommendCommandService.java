@@ -22,7 +22,7 @@ public class RecommendCommandService {
         Recommend recommend = Recommend.builder()
                 .user(user)
                 .recommendSpot(response.getRegion())     // "부산광역시"
-                .regionId(response.getRegionId())
+                //.regionId(response.getRegionId())
                 .reason(response.getDescription())
                 .build();
 
