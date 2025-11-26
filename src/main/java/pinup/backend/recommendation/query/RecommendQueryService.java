@@ -113,13 +113,8 @@ public class RecommendQueryService {
 
         // 응답 DTO 구성
         RecommendationResponseDTO response = new RecommendationResponseDTO();
-        // 기존에는 spot.getName()을 region에 넣었는데,
-        // 일정의 기준이 되는 도시(region)를 넣는 게 더 자연스러워 보임
-        response.setRegion(spots.get(0).getRegion());   // 예: "부산광역시"
         response.setTitle(title);
         response.setDescription(description);
-
-        // 필요하다면 일정에 포함된 spot 리스트도 DTO에 추가하는 걸 추천
         return response;
     }
 
