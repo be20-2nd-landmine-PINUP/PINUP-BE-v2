@@ -22,12 +22,12 @@ public class Store {
     @Column(name = "item_id")
     private Integer itemId;
 
-    // FK - Region
+    // FK: Region
     @ManyToOne
     @JoinColumn(name = "region_id", nullable = true)
     private Region region;
 
-    // FK - Admin
+    // FK: Admin
     @ManyToOne
     @JoinColumn(name = "admin_id", nullable = false)
     private Admin admin;
@@ -58,7 +58,10 @@ public class Store {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // 기존 update (절대 건들지 말 것)
+    /* ============================================================
+       기존 update() — “등록 DTO 기반 전체 업데이트”
+       (절대 삭제 금지 — 다른 기능이 사용하는 중)
+    ============================================================ */
     public void update(StoreRequestDto dto, Region region) {
         this.region = region;
         this.name = dto.getName();
@@ -69,7 +72,10 @@ public class Store {
         this.imageUrl = dto.getImageUrl();
     }
 
-    // 🔥 PATCH 수정 전용 (새로 추가)
+    /* ============================================================
+       신규 patch() — “부분 수정(PATCH DTO)” 전용
+       (프론트의 수정/토글에 대응)
+    ============================================================ */
     public void patch(StoreUpdateDto dto) {
         if (dto.getName() != null) this.name = dto.getName();
         if (dto.getDescription() != null) this.description = dto.getDescription();
@@ -77,9 +83,14 @@ public class Store {
         if (dto.getCategory() != null) this.category = dto.getCategory();
         if (dto.getLimitType() != null) this.limitType = dto.getLimitType();
         if (dto.getImageUrl() != null) this.imageUrl = dto.getImageUrl();
+
+        // ⭐ 판매 상태 토글 (중지/판매중)
         if (dto.getIsActive() != null) this.isActive = dto.getIsActive();
     }
 
+    /* ============================================================
+       자동 생성일
+    ============================================================ */
     @PrePersist
     private void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -17,7 +17,7 @@ public class StoreAdminService {
 
     private final StoreRepository storeRepository;
 
-    // 🔥 등록 (기존 DTO)
+    // 등록
     public Store registerItem(StoreRequestDto dto) {
 
         Store item = Store.builder()
@@ -35,15 +35,16 @@ public class StoreAdminService {
         return storeRepository.save(item);
     }
 
-    // 🔥 PATCH 수정 (신규 DTO 사용)
+    // PATCH 수정
     public Store updateItem(Integer itemId, StoreUpdateDto dto) {
 
         Store item = storeRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("아이템 없음"));
 
+        // ⭐ 핵심
         item.patch(dto);
 
-        return item;
+        return item; // @Transactional 이므로 save 불필요 (JPA Dirty Checking)
     }
 
     // 삭제
