@@ -71,7 +71,8 @@ public class RecommendQueryService {
 
         // 5) 응답 DTO 구성
         RecommendationResponseDTO response = new RecommendationResponseDTO();
-        response.setRegion(spots.get(0).getRegion());
+        //response.setRegion(anchor.getRegion());
+        //response.setRegionId(anchor.getId());
         response.setTitle(title);
         response.setDescription(description);
 
@@ -108,7 +109,8 @@ public class RecommendQueryService {
 
         // ✅ 여러 개 spot 선택 (예: 3개)
         List<TourSpot> spots = pickItinerarySpots(request, 3);
-
+// ✅ anchor 스팟 (가장 점수 높은 지역 1개)
+        TourSpot anchor = spots.get(0);
         // 프롬프트 생성
         String prompt = buildItineraryPrompt(request, spots);
         String raw = openAiClient.generate(prompt);
@@ -134,6 +136,9 @@ public class RecommendQueryService {
 
         // 응답 DTO 구성
         RecommendationResponseDTO response = new RecommendationResponseDTO();
+        // ✅ 여기서 region / regionId 세팅
+        response.setRegion(anchor.getRegion()); // 예: "부산광역시"
+        response.setRegionId(anchor.getId());
         response.setTitle(title);
         response.setDescription(description);
         return response;

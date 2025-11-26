@@ -37,7 +37,7 @@ public class OpenAiClient {
         }
         //  여기 아래는 실제 OpenAI 호출 로직 (enabled=true일 때만 실행)
         Map<String, Object> body = Map.of(
-                "model", "o3-mini",   // 💸 저렴한 모델
+                "model", "gpt-4.1-mini",
                 "messages", List.of(
                         // 필요하면 여기 system 역할 따로 빼도 됨
                         Map.of("role", "user", "content", prompt)

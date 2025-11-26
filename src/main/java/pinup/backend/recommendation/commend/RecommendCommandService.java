@@ -18,9 +18,11 @@ public class RecommendCommandService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다. userId=" + userId));
 
+
         Recommend recommend = Recommend.builder()
                 .user(user)
-                .recommendSpot(response.getRegion())
+                .recommendSpot(response.getRegion())     // "부산광역시"
+                .regionId(response.getRegionId())
                 .reason(response.getDescription())
                 .build();
 
