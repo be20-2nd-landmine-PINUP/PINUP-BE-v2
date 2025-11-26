@@ -37,7 +37,7 @@ public class ConquerSessionService {
     private final UserRepository userRepository;
     private final PointService pointService;
 
-    private static final Duration CONQUER_DURATION = Duration.ofHours(2);
+    private static final Duration CONQUER_DURATION = Duration.ofSeconds(2);
 
     public ConquerStartResponse startConquering(Long userId, ConquerStartRequest request) {
         Region region = regionMapper.findRegion(request.getLongitude(), request.getLatitude());
@@ -48,7 +48,12 @@ public class ConquerSessionService {
         ConquerSession session = ConquerSession.start(userId, region.getRegionId(), Instant.now());
         ConquerSession savedSession = conquerSessionRepository.save(session);
 
-        return new ConquerStartResponse(savedSession.getId());
+        return new ConquerStartResponse(
+                savedSession.getId(),
+                region.getRegionDepth1(),
+                region.getRegionDepth2(),
+                region.getRegionDepth3()
+        );
     }
 
     public ConquerEndResponse endConquering(Long userId, ConquerEndRequest request) {

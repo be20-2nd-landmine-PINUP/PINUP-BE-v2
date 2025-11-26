@@ -7,4 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ConquerStartResponse {
     private Long sessionId;
+    private String regionDepth1;
+    private String regionDepth2;
+    private String regionDepth3;
 }
