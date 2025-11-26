@@ -1,8 +1,14 @@
 package pinup.backend.notification.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import pinup.backend.member.command.domain.Users;
+import pinup.backend.member.command.repository.UserRepository;
 import pinup.backend.notification.dto.NotificationRequest;
 
 import java.io.IOException;
@@ -12,10 +18,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class NotificationService {
     private final Map<Integer, SseEmitter> sseEmitter;
+    private final UserRepository userRepository;
 
-    public SseEmitter establishConnect(Long clientId) {
-        Long connectionTimeout = 60 * 1000L;
-        Integer clientIdInt = clientId.intValue();
+    public SseEmitter establishConnect(@AuthenticationPrincipal OAuth2User user) {
+        Long connectionTimeout = 60 * 100000L;
+        Users userEntity = userRepository.findByEmail(user.getAttribute("email")).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")
+        );
+
+        Integer clientIdInt = userEntity.getUserId().intValue();
 
         SseEmitter emitter = new SseEmitter(connectionTimeout);
 
