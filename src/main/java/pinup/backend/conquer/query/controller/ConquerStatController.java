@@ -28,4 +28,8 @@ public class ConquerStatController {
         Long userId = authenticatedUserService.getCurrentUserId(authentication);
         return conquerStatService.getMonthlyConqueredRegions(userId);
     }
+
+    // 3.
+    @GetMapping("api/conquer/my-regions")
+    public List<>
 }
