@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pinup.backend.auth.command.service.AuthenticatedUserService;
-import pinup.backend.conquer.command.application.dto.ConquerEndRequest;
-import pinup.backend.conquer.command.application.dto.ConquerEndResponse;
-import pinup.backend.conquer.command.application.dto.ConquerStartRequest;
-import pinup.backend.conquer.command.application.dto.ConquerStartResponse;
+import pinup.backend.conquer.command.application.dto.request.ConquerEndRequest;
+import pinup.backend.conquer.command.application.dto.response.ConquerEndResponse;
+import pinup.backend.conquer.command.application.dto.request.ConquerStartRequest;
+import pinup.backend.conquer.command.application.dto.response.ConquerStartResponse;
 import pinup.backend.conquer.command.application.service.ConquerSessionService;
 
 @RestController
