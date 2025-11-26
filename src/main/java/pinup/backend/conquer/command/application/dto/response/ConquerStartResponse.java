@@ -1,4 +1,4 @@
-package pinup.backend.conquer.command.application.dto;
+package pinup.backend.conquer.command.application.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
