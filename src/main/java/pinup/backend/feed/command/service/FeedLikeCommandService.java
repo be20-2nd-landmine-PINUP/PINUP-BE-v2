@@ -44,8 +44,8 @@ public class FeedLikeCommandService {
         try {
             FeedLike like = FeedLike.builder()
                     .feedLikeId(new FeedLikeId(userId, feedId))
-                    .userId(user)
-                    .feedId(feed)
+                    .user(user)
+                    .feed(feed)
                     .build();
 
             feedLikeRepository.save(like);
