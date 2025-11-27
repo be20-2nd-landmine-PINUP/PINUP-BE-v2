@@ -33,6 +33,7 @@ public class ReportService {
         return ReportSpecificResponse.builder()
                 .reportId(report.getReportId())
                 .userId(report.getUser() != null? report.getUser().getUserId() : null)
+                .feedId(report.getFeed() != null? report.getFeed().getFeedId() : null)
                 .reason(report.getReason())
                 .adminStatement(report.getAdminStatement())
                 .status(report.getStatus().toString())
