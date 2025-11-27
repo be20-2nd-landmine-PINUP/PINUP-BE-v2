@@ -11,7 +11,7 @@
             s.name        AS name,
             s.price       AS price,
             s.category    AS category,
-            s.limit_type  AS isLimited,
+            s.limit_type  AS limitType,
             s.image_url   AS imageUrl,
             s.is_active   AS isActive,
             s.created_at  AS createdAt
