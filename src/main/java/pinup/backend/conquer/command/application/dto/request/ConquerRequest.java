@@ -1,4 +1,4 @@
-package pinup.backend.conquer.command.application.dto;
+package pinup.backend.conquer.command.application.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConquerStartRequest {
+public class ConquerRequest {
     private double latitude;
     private double longitude;
 }

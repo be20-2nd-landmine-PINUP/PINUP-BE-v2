@@ -5,6 +5,16 @@
 
 <mapper namespace="pinup.backend.conquer.query.mapper.ConquerStatMapper">
 
+    <resultMap id="UserConqueredTerritoryResponseMap" type="pinup.backend.conquer.query.dto.response.UserConqueredTerritoryResponse">
+        <constructor>
+            <arg column="message" javaType="java.lang.String"/>
+            <arg column="regionName" javaType="java.lang.String"/>
+            <arg column="regionDepth1" javaType="java.lang.String"/>
+            <arg column="regionDepth2" javaType="java.lang.String"/>
+            <arg column="regionDepth3" javaType="java.lang.String"/>
+        </constructor>
+    </resultMap>
+
     <select id="countUserConqueredRegions" resultType="long">
         SELECT COUNT(*)
         FROM territory
@@ -17,6 +27,17 @@
         WHERE user_id = #{userId}
           AND capture_end_at IS NOT NULL
           AND DATE_FORMAT(capture_end_at, '%Y-%m') = DATE_FORMAT(CURRENT_DATE(), '%Y-%m')
+    </select>
+
+    <select id="loadUserTerritoryList" resultMap="UserConqueredTerritoryResponseMap">
+        SELECT
+            NULL AS message,
+            <include refid="pinup.backend.conquer.command.mapper.RegionMapper.UserTerritoryRegionColumns"/>
+        FROM territory t
+                 JOIN region r ON r.region_id = t.region_id
+        WHERE t.user_id = #{userId}
+        GROUP BY r.region_id, r.region_name, r.region_depth1, r.region_depth2, r.region_depth3
+        ORDER BY MAX(COALESCE(t.capture_end_at, t.capture_start_at)) DESC
     </select>
 
 </mapper>

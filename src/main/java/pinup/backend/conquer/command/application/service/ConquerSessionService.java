@@ -3,10 +3,10 @@ package pinup.backend.conquer.command.application.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pinup.backend.conquer.command.application.dto.ConquerEndRequest;
-import pinup.backend.conquer.command.application.dto.ConquerEndResponse;
-import pinup.backend.conquer.command.application.dto.ConquerStartRequest;
-import pinup.backend.conquer.command.application.dto.ConquerStartResponse;
+import pinup.backend.conquer.command.application.dto.request.ConquerEndRequest;
+import pinup.backend.conquer.command.application.dto.response.ConquerEndResponse;
+import pinup.backend.conquer.command.application.dto.request.ConquerStartRequest;
+import pinup.backend.conquer.command.application.dto.response.ConquerStartResponse;
 import pinup.backend.conquer.command.domain.entity.ConquerSession;
 import pinup.backend.conquer.command.domain.entity.Region;
 import pinup.backend.conquer.command.domain.entity.Territory;
@@ -37,7 +37,7 @@ public class ConquerSessionService {
     private final UserRepository userRepository;
     private final PointService pointService;
 
-    private static final Duration CONQUER_DURATION = Duration.ofHours(2);
+    private static final Duration CONQUER_DURATION = Duration.ofSeconds(2);
 
     public ConquerStartResponse startConquering(Long userId, ConquerStartRequest request) {
         Region region = regionMapper.findRegion(request.getLongitude(), request.getLatitude());
@@ -48,7 +48,12 @@ public class ConquerSessionService {
         ConquerSession session = ConquerSession.start(userId, region.getRegionId(), Instant.now());
         ConquerSession savedSession = conquerSessionRepository.save(session);
 
-        return new ConquerStartResponse(savedSession.getId());
+        return new ConquerStartResponse(
+                savedSession.getId(),
+                region.getRegionDepth1(),
+                region.getRegionDepth2(),
+                region.getRegionDepth3()
+        );
     }
 
     public ConquerEndResponse endConquering(Long userId, ConquerEndRequest request) {

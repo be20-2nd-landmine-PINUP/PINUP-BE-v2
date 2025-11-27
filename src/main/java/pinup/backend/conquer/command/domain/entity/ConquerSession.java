@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.Instant;
 
+// ToDo: add ManytoOne relation with Region.
 @Entity
 @Table(name = "conquer_session")
 @Getter
