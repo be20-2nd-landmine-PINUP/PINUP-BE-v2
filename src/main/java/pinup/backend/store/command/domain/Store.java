@@ -49,7 +49,7 @@ public class Store {
     @Column(nullable = false, length = 20)
     private StoreLimitType limitType;
 
-    @Column(name = "image_url", nullable = false, length = 255)
+    @Column(name = "image_url", nullable = true, length = 255)
     private String imageUrl;
 
     @Column(name = "is_active", nullable = false)
