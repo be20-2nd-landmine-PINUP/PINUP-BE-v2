@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import pinup.backend.conquer.command.application.dto.ConquerEndRequest;
-import pinup.backend.conquer.command.application.dto.ConquerEndResponse;
-import pinup.backend.conquer.command.application.dto.ConquerStartRequest;
-import pinup.backend.conquer.command.application.dto.ConquerStartResponse;
+import pinup.backend.conquer.command.application.dto.request.ConquerEndRequest;
+import pinup.backend.conquer.command.application.dto.response.ConquerEndResponse;
+import pinup.backend.conquer.command.application.dto.request.ConquerStartRequest;
+import pinup.backend.conquer.command.application.dto.response.ConquerStartResponse;
 import pinup.backend.conquer.command.application.service.ConquerSessionService;
 import pinup.backend.conquer.command.domain.entity.Region;
 
@@ -52,7 +52,12 @@ class ConquerControllerTest {
     void startConquering() throws Exception {
         // Given
         ConquerStartRequest request = new ConquerStartRequest(37.5665, 126.9780);
-        ConquerStartResponse mockResponse = new ConquerStartResponse(1L);
+        ConquerStartResponse mockResponse = new ConquerStartResponse(
+                1L,
+                "서울특별시",
+                "종로구",
+                "청운효자동"
+        );
 
         when(conquerSessionService.startConquering(any(), any(ConquerStartRequest.class))).thenReturn(mockResponse);
 
@@ -63,7 +68,10 @@ class ConquerControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sessionId").value(1L));
+                .andExpect(jsonPath("$.sessionId").value(1L))
+                .andExpect(jsonPath("$.regionDepth1").value("서울특별시"))
+                .andExpect(jsonPath("$.regionDepth2").value("종로구"))
+                .andExpect(jsonPath("$.regionDepth3").value("청운효자동"));
     }
 
     @Test
